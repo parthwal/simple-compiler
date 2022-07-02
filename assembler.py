@@ -117,6 +117,9 @@ def initial_check(p_code):
                 if i[1] == "halt":
                     HLT_F = True
 
+VAR_F  = True
+HLT_F  = False
+MEM_F  = False
 
 def acheck(i):
     if len(i) == 4:
