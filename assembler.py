@@ -1,4 +1,14 @@
-#new
+'''
+TO DO LIST:
+1> REWRITE MEANINGFUL ERROR TYPE AND MESSAGE
+2> IN TYPE C SYNTAX MOV FUNC CAN ALLOW FLAG REGISTER IN THE SECOND SLOT : NEED TO CODE THAT
+3> TEST CODE 
+4> WRITE BINARY PRINTER(NODE ALL INTANCES OF THE LABELS SHOULD BEL REPLACED WITH APROPRIATE MEMORY NUMBER, VARIABLES SHOULD BE PRESENT AT LAST)
+
+baki kuch galti ho toh bta dena
+
+
+'''
 from shutil import ExecError
 
 
@@ -81,6 +91,9 @@ line_counter = 0
 parsed_code_temp = code.split("\n")
 parsed_code = []
 
+
+
+
 for i in parsed_code_temp:
     parsed_code.append(i.split())
 print(parsed_code)
@@ -112,6 +125,7 @@ def acheck(i):
                 raise ValueError("FLAG REGISTER CANT BE USED WITH THIS COMMAND")
             if not(j in REGISTERS.keys()):
                 raise ValueError("UNKNOWN REGISTER USED")
+        line_counter += 1
         return True   
     raise TypeError("COMMAND DONT FOLLOW SYNTAX")
 
@@ -122,6 +136,7 @@ def bcheck(i):
                 if i[2][0] == '$':
                     x = int(i[2][1::])
                     if(i <= MAX_NO and i >= MIN_NO):
+                        line_counter += 1
                         return True
                     else:
                         raise OverflowError("IMMIDIATE VALUE OFF RANGE")
@@ -141,6 +156,7 @@ def ccheck(i):
                 raise ValueError("FLAG REGISTER CANT BE USED WITH THIS COMMAND")
             if not(j in REGISTERS.keys()):
                 raise ValueError("UNKNOWN REGISTER USED")
+        line_counter += 1
         return True
     raise TypeError("COMMAND DONT FOLLOW SYNTAX")
 
@@ -149,6 +165,7 @@ def dcheck(i):
         if i[1] in REGISTERS.keys():
             if i[1] != "FLAGS":
                 if i[2] in var.keys():
+                    line_counter += 1
                     return True
                 else:
                     raise NotImplementedError("VARIABLE DOES NOT EXIST")
@@ -162,6 +179,7 @@ def dcheck(i):
 def echeck(i):
     if len(i) == 2:
         if i[1] in var:
+            line_counter += 1
             return True
         else:
             raise NotImplementedError("VARIABLE DOES NOT EXIST")
@@ -169,6 +187,7 @@ def echeck(i):
         raise SyntaxError("COMMAND DONT FOLLOW SYNTAX")
 def fcheck(i):
     if len(i) == 1:
+        line_counter += 1
         return True
     else:
         raise SyntaxError("HALT CANT HAVE ARGUMENTS")
@@ -182,15 +201,6 @@ def gcheck(i):
     else:
         raise ExecError("LABELS CANT HAVE VAR COMMAND")
 
-def hcheck(i):
-    if i[0][-1] == ':':
-        if len(i) > 1:
-            if i[1] != 'var':
-                labels[i[0][:-1:]] = line_counter
-            else:
-                raise ExecError("LABELS CANT HAVE VAR COMMAND")
-
-
 
 
 
@@ -202,7 +212,29 @@ SYN_CHECK ={
     "E" : echeck,
     "F" : fcheck,
     "G" : gcheck,
-    "H" : hcheck,
-}       
+} 
+
+
+def hcheck(i):
+    if i[0][-1] == ':':
+        if len(i) > 1:
+            if i[1] != 'var':
+                labels[i[0][:-1:]] = line_counter
+                if i[1] in isa_type.keys():
+                    SYN_CHECK[isa_type[i[1]]](i[1::])
+                else:
+                    raise SyntaxError("INVALID SYNTAX")
+            else:
+                raise ExecError("LABELS CANT HAVE VAR COMMAND")
+        else:
+            raise SyntaxError("INVALID SYNTAX")
+    else:
+        raise SyntaxError("INVALID SYNTAX")
+        
+      
 def syntax_check(p_code):
     for i in p_code:
+        if i[0] in isa_type.keys():
+            SYN_CHECK[isa_type[i[0]]](i)
+        else:
+            hcheck(i)
