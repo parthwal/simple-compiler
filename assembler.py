@@ -96,7 +96,7 @@ parsed_code = []
 
 for i in parsed_code_temp:
     parsed_code.append(i.split())
-print(parsed_code)
+# print(parsed_code)
 
 def initial_check(p_code):
     if len(p_code) > MAX_MEM:
@@ -121,7 +121,7 @@ VAR_F  = True
 HLT_F  = False
 MEM_F  = False
 
-def acheck(i):
+def acheck(i, line_counter=line_counter):
     if len(i) == 4:
         for j in i[1::]:
             if j == "FLAGS":
@@ -132,7 +132,7 @@ def acheck(i):
         return True   
     raise TypeError("COMMAND DONT FOLLOW SYNTAX")
 
-def bcheck(i):
+def bcheck(i, line_counter=line_counter):
     if len(i) == 3:
         if i[1] in REGISTERS.keys():
             if i[1] != "FLAGS":
@@ -152,7 +152,7 @@ def bcheck(i):
     else:
         raise SyntaxError("COMMAND DONT FOLLOW SYNTAX")
 
-def ccheck(i):
+def ccheck(i, line_counter=line_counter):
     if len(i) == 3:
         for j in i[1::]:
             if j == "FLAGS":
@@ -163,7 +163,7 @@ def ccheck(i):
         return True
     raise TypeError("COMMAND DONT FOLLOW SYNTAX")
 
-def dcheck(i):
+def dcheck(i, line_counter=line_counter):
     if len(i) == 3:
         if i[1] in REGISTERS.keys():
             if i[1] != "FLAGS":
@@ -179,7 +179,7 @@ def dcheck(i):
     else:
         raise SyntaxError("COMMAND DONT FOLLOW SYNTAX")
 
-def echeck(i):
+def echeck(i, line_counter=line_counter):
     if len(i) == 2:
         if i[1] in var:
             line_counter += 1
@@ -188,13 +188,13 @@ def echeck(i):
             raise NotImplementedError("VARIABLE DOES NOT EXIST")
     else:
         raise SyntaxError("COMMAND DONT FOLLOW SYNTAX")
-def fcheck(i):
+def fcheck(i, line_counter=line_counter):
     if len(i) == 1:
         line_counter += 1
         return True
     else:
         raise SyntaxError("HALT CANT HAVE ARGUMENTS")
-def gcheck(i):
+def gcheck(i, line_counter=line_counter):
     if VAR_F:
         if len(i) == 2:
             var[i[1]] = len(var)
@@ -241,3 +241,71 @@ def syntax_check(p_code):
             SYN_CHECK[isa_type[i[0]]](i)
         else:
             hcheck(i)
+
+syntax_check(parsed_code)
+# print(parsed_code)
+
+def aprint(i):
+    res=[]
+    res.extend(isa_commands[i[0]])
+    res.extend('00')
+    res.extend(REGISTERS[i[1]])
+    res.extend(REGISTERS[i[2]])
+    res.extend(REGISTERS[i[3]])
+    return res
+def bprint(i):
+    res=[]
+    res.extend(isa_commands[i[0]])
+    res.extend(REGISTERS[i[1]])
+    res.extend(f'{6:08b}')
+    return res
+def cprint(i):
+    res=[]
+    res.extend(isa_commands[i[0]])
+    res.extend('00000')
+    res.extend(REGISTERS[i[1]])
+    res.extend(REGISTERS[i[2]])
+    return res
+def dprint(i):
+    res=[]
+    res.extend(isa_commands[i[0]])
+    res.extend(REGISTERS[i[1][1::]])
+    #add line to print memory address of variables as well
+    return res
+def eprint(i):
+    res=[]
+    res.extend(isa_commands[i[0]])
+    res.extend('000')
+    #add line to print memory address of variables as well
+    return res
+def fprint(i):
+    res=[]
+    res.extend(isa_commands[i[0]])
+    res.extend('00000000000')
+    return res
+def gprint(i):
+    res=[]
+    res.extend(isa_commands[i[0]])
+#     return res
+# def hprint(i):
+#     res=[]
+#     res.extend(isa_commands[i[0]])
+#     return res
+
+SYN_PRINT ={
+    "A" : aprint,
+    "B" : bprint,
+    "C" : cprint,
+    "D" : dprint,
+    "E" : eprint,
+    "F" : fprint,
+    "G" : gprint,
+} 
+
+# for instruct in parsed_code:
+#     if instruct[0] in isa_type.keys():
+#         SYN_PRINT[isa_type[instruct[0]]](instruct)
+#     else:
+#         hprint(instruct)
+
+print(var)
