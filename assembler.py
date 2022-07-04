@@ -51,8 +51,9 @@ isa_commands={
 isa_type = {
     "add"  :"A",
     "sub"  :"A",
-    "movi" :"B",
-    "movr" :"C",
+    "mov"  :"X",
+    # "movi" :"B",
+    # "movr" :"C",
     "ld"   :"D",
     "st"   :"D",
     "mul"  :"A",
@@ -99,6 +100,8 @@ for i in parsed_code_temp:
 print(parsed_code)
 
 def initial_check(p_code):
+    global VAR_F
+    global HLT_F
     if len(p_code) > MAX_MEM:
         raise OverflowError("MEMORY LIMIT HAS REACHED")
     for i in p_code:
@@ -111,15 +114,15 @@ def initial_check(p_code):
         if HLT_F:
             raise NameError("HALT CAN ONLY BE CALLED AT THE END")
         else:
-            if i[0] == "halt":
+            if i[0] == "hlt":
                 HLT_F = True
             elif i[0][-1] == ":":
-                if i[1] == "halt":
+                if i[1] == "hlt":
                     HLT_F = True
+    if(p_code[-1][0] != "hlt"):
+        raise NameError("HALT NOT PRESENT")
 
-VAR_F  = True
-HLT_F  = False
-MEM_F  = False
+
 
 def acheck(i):
     global line_counter
@@ -204,9 +207,12 @@ def echeck(i):
         if i[1] in var:
             line_counter = line_counter + 1
             return True
+        elif i[1] in labels:
+            line_counter = line_counter + 1
+            return True
         else:
             print(line_counter)
-            raise NotImplementedError("VARIABLE DOES NOT EXIST")
+            raise NotImplementedError("MEM LOCATION DOES NOT EXIST")
     else:
         print(line_counter)
         raise SyntaxError("COMMAND DONT FOLLOW SYNTAX")
@@ -219,9 +225,12 @@ def fcheck(i):
         print(line_counter)
         raise SyntaxError("HALT CANT HAVE ARGUMENTS")
 def gcheck(i):
+    global VAR_F
     global line_counter
     if VAR_F:
         if len(i) == 2:
+            if(i[1] in var):
+                raise ExecError("VAR ALREADY USED")
             var[i[1]] = len(var)
             return True
         else:
@@ -232,7 +241,34 @@ def gcheck(i):
         raise ExecError("LABELS CANT HAVE VAR COMMAND")
 
 
-
+def xcheck(i):
+    global line_counter
+    if len(i) == 3:
+        if i[1] in REGISTERS.keys():
+            if i[1] != "FLAGS":
+                if i[2][0] == '$':
+                    x = int(i[2][1::])
+                    if(x <= MAX_NO and x >= MIN_NO):
+                        line_counter = line_counter+ 1
+                        return True
+                    else:
+                        print(line_counter)
+                        raise OverflowError("IMMIDIATE VALUE OFF RANGE")
+                elif i[2] in REGISTERS:
+                    line_counter = line_counter+ 1
+                    return True
+                else:
+                    print(line_counter)
+                    raise SyntaxError("INVALID PARAMETER")
+            else:
+                print(line_counter)
+                raise ValueError("THIS OPPERATION CANT USE FLAG REGISTER")
+        else:
+            print(line_counter)
+            raise ValueError("INVALID REGISTER")
+    else:
+        print(line_counter)
+        raise SyntaxError("COMMAND DONT FOLLOW SYNTAX")
 
 SYN_CHECK ={
     "A" : acheck,
@@ -242,7 +278,8 @@ SYN_CHECK ={
     "E" : echeck,
     "F" : fcheck,
     "G" : gcheck,
-} 
+    "X" : xcheck,
+    } 
 
 
 def hcheck(i):
@@ -263,6 +300,14 @@ def hcheck(i):
         
       
 def syntax_check(p_code):
+    initial_check(p_code)
+    global VAR_F 
+    global HLT_F
+    global MEM_F
+    
+    VAR_F = True
+    HLT_F = False
+    MEM_F = False
     for i in p_code:
         if i[0] in isa_type.keys():
             SYN_CHECK[isa_type[i[0]]](i)
