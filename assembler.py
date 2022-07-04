@@ -51,9 +51,8 @@ isa_commands={
 isa_type = {
     "add"  :"A",
     "sub"  :"A",
-    "mov"  :"X",
-    # "movi" :"B",
-    # "movr" :"C",
+    "movi" :"B",
+    "movr" :"C",
     "ld"   :"D",
     "st"   :"D",
     "mul"  :"A",
@@ -97,11 +96,9 @@ parsed_code = []
 
 for i in parsed_code_temp:
     parsed_code.append(i.split())
-print(parsed_code)
+# print(parsed_code)
 
 def initial_check(p_code):
-    global VAR_F
-    global HLT_F
     if len(p_code) > MAX_MEM:
         raise OverflowError("MEMORY LIMIT HAS REACHED")
     for i in p_code:
@@ -114,161 +111,101 @@ def initial_check(p_code):
         if HLT_F:
             raise NameError("HALT CAN ONLY BE CALLED AT THE END")
         else:
-            if i[0] == "hlt":
+            if i[0] == "halt":
                 HLT_F = True
             elif i[0][-1] == ":":
-                if i[1] == "hlt":
+                if i[1] == "halt":
                     HLT_F = True
-    if(p_code[-1][0] != "hlt"):
-        raise NameError("HALT NOT PRESENT")
 
+VAR_F  = True
+HLT_F  = False
+MEM_F  = False
 
-
-def acheck(i):
-    global line_counter
+def acheck(i, line_counter=line_counter):
     if len(i) == 4:
         for j in i[1::]:
             if j == "FLAGS":
-                print(line_counter)
                 raise ValueError("FLAG REGISTER CANT BE USED WITH THIS COMMAND")
             if not(j in REGISTERS.keys()):
-                print(line_counter)
                 raise ValueError("UNKNOWN REGISTER USED")
-        line_counter = line_counter + 1
-        return True 
-    print(line_counter)  
+        line_counter += 1
+        return True   
     raise TypeError("COMMAND DONT FOLLOW SYNTAX")
 
-def bcheck(i):
-    global line_counter
+def bcheck(i, line_counter=line_counter):
     if len(i) == 3:
         if i[1] in REGISTERS.keys():
             if i[1] != "FLAGS":
                 if i[2][0] == '$':
                     x = int(i[2][1::])
-                    if(x <= MAX_NO and x >= MIN_NO):
-                        line_counter = line_counter+ 1
+                    if(i <= MAX_NO and i >= MIN_NO):
+                        line_counter += 1
                         return True
                     else:
-                        print(line_counter)
                         raise OverflowError("IMMIDIATE VALUE OFF RANGE")
                 else:
-                    print(line_counter)
                     raise SyntaxError("EXPECTED A $ SIGN")
             else:
-                print(line_counter)
                 raise ValueError("THIS OPPERATION CANT USE FLAG REGISTER")
         else:
-            print(line_counter)
             raise ValueError("INVALID REGISTER")
     else:
-        print(line_counter)
         raise SyntaxError("COMMAND DONT FOLLOW SYNTAX")
 
-def ccheck(i):
-    global line_counter
+def ccheck(i, line_counter=line_counter):
     if len(i) == 3:
         for j in i[1::]:
             if j == "FLAGS":
-                print(line_counter)
                 raise ValueError("FLAG REGISTER CANT BE USED WITH THIS COMMAND")
             if not(j in REGISTERS.keys()):
-                print(line_counter)
                 raise ValueError("UNKNOWN REGISTER USED")
-        line_counter = line_counter + 1
+        line_counter += 1
         return True
-    print(line_counter)
     raise TypeError("COMMAND DONT FOLLOW SYNTAX")
 
-def dcheck(i):
-    global line_counter
+def dcheck(i, line_counter=line_counter):
     if len(i) == 3:
         if i[1] in REGISTERS.keys():
             if i[1] != "FLAGS":
                 if i[2] in var.keys():
-                    line_counter = line_counter + 1
+                    line_counter += 1
                     return True
                 else:
-                    print(line_counter)
                     raise NotImplementedError("VARIABLE DOES NOT EXIST")
             else:
-                print(line_counter)
                 raise ValueError("THIS OPERRATION CANT UUSE FLAG REGISTER")
         else:
-            print(line_counter)
             raise ValueError("INVALID REGISTER")
     else:
-        print(line_counter)
         raise SyntaxError("COMMAND DONT FOLLOW SYNTAX")
 
-def echeck(i):
-    global line_counter
+def echeck(i, line_counter=line_counter):
     if len(i) == 2:
         if i[1] in var:
-            line_counter = line_counter + 1
-            return True
-        elif i[1] in labels:
-            line_counter = line_counter + 1
+            line_counter += 1
             return True
         else:
-            print(line_counter)
-            raise NotImplementedError("MEM LOCATION DOES NOT EXIST")
+            raise NotImplementedError("VARIABLE DOES NOT EXIST")
     else:
-        print(line_counter)
         raise SyntaxError("COMMAND DONT FOLLOW SYNTAX")
-def fcheck(i):
-    global line_counter
+def fcheck(i, line_counter=line_counter):
     if len(i) == 1:
-        line_counter = line_counter + 1
+        line_counter += 1
         return True
     else:
-        print(line_counter)
         raise SyntaxError("HALT CANT HAVE ARGUMENTS")
-def gcheck(i):
-    global VAR_F
-    global line_counter
+def gcheck(i, line_counter=line_counter):
     if VAR_F:
         if len(i) == 2:
-            if(i[1] in var):
-                raise ExecError("VAR ALREADY USED")
             var[i[1]] = len(var)
             return True
         else:
-            print(line_counter)
             raise SyntaxError("INVALID SYNTAX")
     else:
-        print(line_counter)
         raise ExecError("LABELS CANT HAVE VAR COMMAND")
 
 
-def xcheck(i):
-    global line_counter
-    if len(i) == 3:
-        if i[1] in REGISTERS.keys():
-            if i[1] != "FLAGS":
-                if i[2][0] == '$':
-                    x = int(i[2][1::])
-                    if(x <= MAX_NO and x >= MIN_NO):
-                        line_counter = line_counter+ 1
-                        return True
-                    else:
-                        print(line_counter)
-                        raise OverflowError("IMMIDIATE VALUE OFF RANGE")
-                elif i[2] in REGISTERS:
-                    line_counter = line_counter+ 1
-                    return True
-                else:
-                    print(line_counter)
-                    raise SyntaxError("INVALID PARAMETER")
-            else:
-                print(line_counter)
-                raise ValueError("THIS OPPERATION CANT USE FLAG REGISTER")
-        else:
-            print(line_counter)
-            raise ValueError("INVALID REGISTER")
-    else:
-        print(line_counter)
-        raise SyntaxError("COMMAND DONT FOLLOW SYNTAX")
+
 
 SYN_CHECK ={
     "A" : acheck,
@@ -278,8 +215,7 @@ SYN_CHECK ={
     "E" : echeck,
     "F" : fcheck,
     "G" : gcheck,
-    "X" : xcheck,
-    } 
+} 
 
 
 def hcheck(i):
@@ -300,14 +236,6 @@ def hcheck(i):
         
       
 def syntax_check(p_code):
-    initial_check(p_code)
-    global VAR_F 
-    global HLT_F
-    global MEM_F
-    
-    VAR_F = True
-    HLT_F = False
-    MEM_F = False
     for i in p_code:
         if i[0] in isa_type.keys():
             SYN_CHECK[isa_type[i[0]]](i)
@@ -329,7 +257,7 @@ def bprint(i):
     res=[]
     res.extend(isa_commands[i[0]])
     res.extend(REGISTERS[i[1]])
-    res.extend(f'{6:08b}')
+    res.extend(f'{i[2][1::]:08b}')
     return res
 def cprint(i):
     res=[]
@@ -341,14 +269,16 @@ def cprint(i):
 def dprint(i):
     res=[]
     res.extend(isa_commands[i[0]])
-    res.extend(REGISTERS[i[1][1::]])
-    #add line to print memory address of variables as well
+    res.extend(REGISTERS[i[1]])
+    tempBin=line_counter + var[i[2]]
+    res.extend(f'{tempBin:08b}')
     return res
 def eprint(i):
     res=[]
     res.extend(isa_commands[i[0]])
     res.extend('000')
-    #add line to print memory address of variables as well
+    tempBin=line_counter + var[i[1]]
+    res.extend(f'{tempBin:08b}')
     return res
 def fprint(i):
     res=[]
@@ -356,9 +286,10 @@ def fprint(i):
     res.extend('00000000000')
     return res
 def gprint(i):
-    res=[]
-    res.extend(isa_commands[i[0]])
-#     return res
+    pass
+    # res=[]
+    # res.extend(isa_commands[i[0]])
+    # return res
 # def hprint(i):
 #     res=[]
 #     res.extend(isa_commands[i[0]])
@@ -373,11 +304,19 @@ SYN_PRINT ={
     "F" : fprint,
     "G" : gprint,
 } 
+def printString(a):
+    print(' '.join(a))
+def print_code(parsed_code=parsed_code):
+    for instruct in parsed_code:
+        if instruct[0] in isa_type.keys():
+            printing=SYN_PRINT[isa_type[instruct[0]]](instruct)
+            if printing!=None:
+                print(*printing,sep='')
+        else:
+            # hprint(instruct)
+            pass
+    
 
-# for instruct in parsed_code:
-#     if instruct[0] in isa_type.keys():
-#         SYN_PRINT[isa_type[instruct[0]]](instruct)
-#     else:
-#         hprint(instruct)
 
-print(var)
+syntax_check(parsed_code)
+print_code()
