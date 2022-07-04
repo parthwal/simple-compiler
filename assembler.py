@@ -96,7 +96,7 @@ parsed_code = []
 
 for i in parsed_code_temp:
     parsed_code.append(i.split())
-# print(parsed_code)
+print(parsed_code)
 
 def initial_check(p_code):
     if len(p_code) > MAX_MEM:
@@ -121,87 +121,114 @@ VAR_F  = True
 HLT_F  = False
 MEM_F  = False
 
-def acheck(i, line_counter=line_counter):
+def acheck(i):
+    global line_counter
     if len(i) == 4:
         for j in i[1::]:
             if j == "FLAGS":
+                print(line_counter)
                 raise ValueError("FLAG REGISTER CANT BE USED WITH THIS COMMAND")
             if not(j in REGISTERS.keys()):
+                print(line_counter)
                 raise ValueError("UNKNOWN REGISTER USED")
-        line_counter += 1
-        return True   
+        line_counter = line_counter + 1
+        return True 
+    print(line_counter)  
     raise TypeError("COMMAND DONT FOLLOW SYNTAX")
 
-def bcheck(i, line_counter=line_counter):
+def bcheck(i):
+    global line_counter
     if len(i) == 3:
         if i[1] in REGISTERS.keys():
             if i[1] != "FLAGS":
                 if i[2][0] == '$':
                     x = int(i[2][1::])
-                    if(i <= MAX_NO and i >= MIN_NO):
-                        line_counter += 1
+                    if(x <= MAX_NO and x >= MIN_NO):
+                        line_counter = line_counter+ 1
                         return True
                     else:
+                        print(line_counter)
                         raise OverflowError("IMMIDIATE VALUE OFF RANGE")
                 else:
+                    print(line_counter)
                     raise SyntaxError("EXPECTED A $ SIGN")
             else:
+                print(line_counter)
                 raise ValueError("THIS OPPERATION CANT USE FLAG REGISTER")
         else:
+            print(line_counter)
             raise ValueError("INVALID REGISTER")
     else:
+        print(line_counter)
         raise SyntaxError("COMMAND DONT FOLLOW SYNTAX")
 
-def ccheck(i, line_counter=line_counter):
+def ccheck(i):
+    global line_counter
     if len(i) == 3:
         for j in i[1::]:
             if j == "FLAGS":
+                print(line_counter)
                 raise ValueError("FLAG REGISTER CANT BE USED WITH THIS COMMAND")
             if not(j in REGISTERS.keys()):
+                print(line_counter)
                 raise ValueError("UNKNOWN REGISTER USED")
-        line_counter += 1
+        line_counter = line_counter + 1
         return True
+    print(line_counter)
     raise TypeError("COMMAND DONT FOLLOW SYNTAX")
 
-def dcheck(i, line_counter=line_counter):
+def dcheck(i):
+    global line_counter
     if len(i) == 3:
         if i[1] in REGISTERS.keys():
             if i[1] != "FLAGS":
                 if i[2] in var.keys():
-                    line_counter += 1
+                    line_counter = line_counter + 1
                     return True
                 else:
+                    print(line_counter)
                     raise NotImplementedError("VARIABLE DOES NOT EXIST")
             else:
+                print(line_counter)
                 raise ValueError("THIS OPERRATION CANT UUSE FLAG REGISTER")
         else:
+            print(line_counter)
             raise ValueError("INVALID REGISTER")
     else:
+        print(line_counter)
         raise SyntaxError("COMMAND DONT FOLLOW SYNTAX")
 
-def echeck(i, line_counter=line_counter):
+def echeck(i):
+    global line_counter
     if len(i) == 2:
         if i[1] in var:
-            line_counter += 1
+            line_counter = line_counter + 1
             return True
         else:
+            print(line_counter)
             raise NotImplementedError("VARIABLE DOES NOT EXIST")
     else:
+        print(line_counter)
         raise SyntaxError("COMMAND DONT FOLLOW SYNTAX")
-def fcheck(i, line_counter=line_counter):
+def fcheck(i):
+    global line_counter
     if len(i) == 1:
-        line_counter += 1
+        line_counter = line_counter + 1
         return True
     else:
+        print(line_counter)
         raise SyntaxError("HALT CANT HAVE ARGUMENTS")
-def gcheck(i, line_counter=line_counter):
+def gcheck(i):
+    global line_counter
     if VAR_F:
         if len(i) == 2:
             var[i[1]] = len(var)
             return True
         else:
+            print(line_counter)
             raise SyntaxError("INVALID SYNTAX")
     else:
+        print(line_counter)
         raise ExecError("LABELS CANT HAVE VAR COMMAND")
 
 
