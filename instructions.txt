@@ -1,10 +1,8 @@
 var x
 var y
 var z
-var w
 mov R1 R2
-lable: mov R2 $45
-add R1 R2 R3
-jlt lable
-cmp R1 R2
+add R1 R2 R1
+mov R1 $250
+st R1 x
 hlt
