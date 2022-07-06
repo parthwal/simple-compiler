@@ -1,8 +1,15 @@
-var x
-var y
-var z
-mov R1 R2
-add R1 R2 R1
-mov R1 $250
-st R1 x
-hlt
+var X
+mov R1 $10
+mov R2 $10
+mov R3 $1
+mov R4 $0
+cmp R1 R2 
+je X
+st R1 X
+jlt exit
+X: mul R3 R1 R2
+sub R2 R2 R3
+cmp R2 R4
+je exit
+jmp X
+exit: hlt

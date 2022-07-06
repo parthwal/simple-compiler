@@ -4,6 +4,7 @@ from shutil import ExecError
 #file input
 f = open("instructions.txt")
 code = f.read().strip()
+print(code)
 f.close()
 
 MAX_NO = 255
@@ -94,29 +95,46 @@ f=open('printBinary.txt','w')
 def initial_check(p_code):
     global VAR_F
     global HLT_F
+    line_c = 0
     if len(p_code) > MAX_MEM:
         f.write('MEMORY LIMIT REACHED')
         raise OverflowError("MEMORY LIMIT REACHED")
-    for i in p_code:
+    for i in range(len(p_code)):
         if VAR_F:
-            if i[0] != "var":
+            if p_code[i][0] != "var":
                 VAR_F = False
+                continue
         else:
-            if i[0] == "var":
+            if p_code[i][0] == "var":
                 f.write('VARIABLES CAN ONLY DE DEFINED AT STARTING OF THE CODE')
                 raise ExecError("VARIABLES CAN ONLY DE DEFINED AT STARTING OF THE CODE")
+
+        if p_code[i][0][-1] == ':':
+            labels[p_code[i][0][:-1:]] = line_c
+        
         if HLT_F:
             f.write('HALT CAN ONLY BE CALLED AT THE END')
             raise NameError("HALT CAN ONLY BE CALLED AT THE END")
         else:
-            if i[0] == "hlt":
+            if p_code[i][0] == "hlt":
                 HLT_F = True
-            elif i[0][-1] == ":":
-                if i[1] == "hlt":
-                    HLT_F = True
+                continue
+            elif p_code[i][0][-1] == ":":
+                try:
+                    if p_code[i][1] == "hlt":
+                        HLT_F = True
+                        continue
+                except IndexError:
+                    raise IndexError("EMPTY LABEL CANT BE USED")
+        line_c += 1
+
     if(p_code[-1][0] != "hlt"):
-        f.write('HALT NOT PRESENT')
-        raise NameError("HALT NOT PRESENT")
+        if(p_code[-1][0][-1] == ':'):
+            if p_code[-1][1] == "hlt":
+                HLT_F = True
+            else:
+                f.write('HALT NOT PRESENT')
+                raise NameError("HALT NOT PRESENT")
 
 def acheck(i):
     global line_counter
@@ -382,7 +400,8 @@ def eprint(i):
     res=[]
     res.extend(isa_commands[i[0]])
     res.extend('000')
-    tempBin=line_counter + var[i[1]]
+    #### IMPORTANT: labels pe hi jump posible he bro variable bas 'ld' 'st' ke liye istemall hone he
+    tempBin=labels[i[1]]
     res.extend(f'{tempBin:08b}')
     #add line to print memory address of variables as well
     return res
