@@ -1,29 +1,18 @@
-'''
-TO DO LIST:
-1> REWRITE MEANINGFUL ERROR TYPE AND MESSAGE
-2> IN TYPE C SYNTAX MOV FUNC CAN ALLOW FLAG REGISTER IN THE SECOND SLOT : NEED TO CODE THAT
-3> TEST CODE 
-4> WRITE BINARY PRINTER(NODE ALL INTANCES OF THE LABELS SHOULD BEL REPLACED WITH APROPRIATE MEMORY NUMBER, VARIABLES SHOULD BE PRESENT AT LAST)
-
-baki kuch galti ho toh bta dena
-
-
-'''
+from writeToFile import input
 from shutil import ExecError
 
-
+#file input
 f = open("instructions.txt")
-code = f.read().strip() #file input
+code = f.read().strip()
 
 MAX_NO = 255
 MIN_NO = 0
 MAX_MEM = 256
 
-
 VAR_F  = True
 HLT_F  = False
 MEM_F  = False
-
+MOV_TYPE=''
 
 isa_commands={
     "add" :"10000",
@@ -73,8 +62,6 @@ isa_type = {
     "var"  :"G",
 }
 
-
-
 REGISTERS = {
     "R0"   :"000",
     "R1"   :"001",
@@ -92,12 +79,14 @@ line_counter = 0
 parsed_code_temp = code.split("\n")
 parsed_code = []
 
-
-
-
 for i in parsed_code_temp:
-    parsed_code.append(i.split())
-print(parsed_code)
+    if 'label' in i.lower():
+        i[1].lower()
+        parsed_code.append(i.split()[1::])
+    if 'label' not in i.lower():
+        i[0].lower()
+        parsed_code.append(i.split())
+# print(parsed_code)
 
 def initial_check(p_code):
     global VAR_F
@@ -121,8 +110,6 @@ def initial_check(p_code):
                     HLT_F = True
     if(p_code[-1][0] != "hlt"):
         raise NameError("HALT NOT PRESENT")
-
-
 
 def acheck(i):
     global line_counter
@@ -216,6 +203,7 @@ def echeck(i):
     else:
         print(line_counter)
         raise SyntaxError("COMMAND DONT FOLLOW SYNTAX")
+
 def fcheck(i):
     global line_counter
     if len(i) == 1:
@@ -224,6 +212,7 @@ def fcheck(i):
     else:
         print(line_counter)
         raise SyntaxError("HALT CANT HAVE ARGUMENTS")
+
 def gcheck(i):
     global VAR_F
     global line_counter
@@ -240,8 +229,8 @@ def gcheck(i):
         print(line_counter)
         raise ExecError("LABELS CANT HAVE VAR COMMAND")
 
-
 def xcheck(i):
+    global MOV_TYPE
     global line_counter
     if len(i) == 3:
         if i[1] in REGISTERS.keys():
@@ -250,12 +239,14 @@ def xcheck(i):
                     x = int(i[2][1::])
                     if(x <= MAX_NO and x >= MIN_NO):
                         line_counter = line_counter+ 1
+                        MOV_TYPE='i'
                         return True
                     else:
                         print(line_counter)
                         raise OverflowError("IMMIDIATE VALUE OFF RANGE")
                 elif i[2] in REGISTERS:
-                    line_counter = line_counter+ 1
+                    line_counter = line_counter+ 1                    
+                    MOV_TYPE='r'
                     return True
                 else:
                     print(line_counter)
@@ -281,7 +272,6 @@ SYN_CHECK ={
     "X" : xcheck,
     } 
 
-
 def hcheck(i):
     if i[0][-1] == ':':
         if len(i) > 1:
@@ -297,8 +287,7 @@ def hcheck(i):
             raise SyntaxError("INVALID SYNTAX")
     else:
         raise SyntaxError("INVALID SYNTAX")
-        
-      
+     
 def syntax_check(p_code):
     initial_check(p_code)
     global VAR_F 
@@ -314,7 +303,7 @@ def syntax_check(p_code):
         else:
             hcheck(i)
 
-syntax_check(parsed_code)
+# syntax_check(parsed_code)
 # print(parsed_code)
 
 def aprint(i):
@@ -325,12 +314,14 @@ def aprint(i):
     res.extend(REGISTERS[i[2]])
     res.extend(REGISTERS[i[3]])
     return res
+
 def bprint(i):
     res=[]
     res.extend(isa_commands[i[0]])
     res.extend(REGISTERS[i[1]])
     res.extend(f'{6:08b}')
     return res
+
 def cprint(i):
     res=[]
     res.extend(isa_commands[i[0]])
@@ -338,27 +329,53 @@ def cprint(i):
     res.extend(REGISTERS[i[1]])
     res.extend(REGISTERS[i[2]])
     return res
+
 def dprint(i):
     res=[]
     res.extend(isa_commands[i[0]])
-    res.extend(REGISTERS[i[1][1::]])
+    # res.extend(REGISTERS[i[1][1::]])
+    res.extend(REGISTERS[i[1]])
+    tempBin=line_counter + var[i[2]]
+    res.extend(f'{tempBin:08b}')
     #add line to print memory address of variables as well
     return res
+
 def eprint(i):
     res=[]
     res.extend(isa_commands[i[0]])
     res.extend('000')
+    tempBin=line_counter + var[i[1]]
+    res.extend(f'{tempBin:08b}')
     #add line to print memory address of variables as well
     return res
+
 def fprint(i):
     res=[]
     res.extend(isa_commands[i[0]])
     res.extend('00000000000')
     return res
+
 def gprint(i):
+    # res=[]
+    # res.extend(isa_commands[i[0]])
+    pass
+
+def xprint(i):
+    global MOV_TYPE
     res=[]
-    res.extend(isa_commands[i[0]])
-#     return res
+    if MOV_TYPE=='i':
+        # res=[]
+        res.extend(isa_commands['movi'])
+        res.extend(REGISTERS[i[1]])
+        res.extend(f'{6:08b}')
+        # return res
+    elif MOV_TYPE=='r':
+        # res=[]
+        res.extend(isa_commands['movr'])
+        res.extend('00000')
+        res.extend(REGISTERS[i[1]])
+        res.extend(REGISTERS[i[2]])
+    return res
 # def hprint(i):
 #     res=[]
 #     res.extend(isa_commands[i[0]])
@@ -372,12 +389,23 @@ SYN_PRINT ={
     "E" : eprint,
     "F" : fprint,
     "G" : gprint,
+    "X" : xprint
 } 
 
-# for instruct in parsed_code:
-#     if instruct[0] in isa_type.keys():
-#         SYN_PRINT[isa_type[instruct[0]]](instruct)
-#     else:
-#         hprint(instruct)
+def printString(a):
+    print(' '.join(a))
+    print("\n")
 
-print(var)
+def print_code(parsed_code=parsed_code):
+    for instruct in parsed_code:
+        if instruct[0] in isa_type.keys():
+            printing=SYN_PRINT[isa_type[instruct[0]]](instruct)
+            if printing!=None:
+                print(*printing,sep='')
+        else:
+            # hprint(instruct)
+            pass
+
+# print(parsed_code)
+syntax_check(parsed_code)
+print_code()
