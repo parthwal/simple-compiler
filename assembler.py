@@ -4,7 +4,7 @@ from shutil import ExecError
 #file input
 f = open("instructions.txt")
 code = f.read().strip()
-print(code)
+# print(code)
 f.close()
 
 MAX_NO = 255
@@ -424,7 +424,8 @@ def xprint(i):
         # res=[]
         res.extend(isa_commands['movi'])
         res.extend(REGISTERS[i[1]])
-        res.extend(f'{6:08b}')
+        temp=int(i[2][1::])
+        res.extend(f'{temp:08b}')
         # return res
     elif MOV_TYPE=='r':
         # res=[]
