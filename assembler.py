@@ -82,11 +82,8 @@ parsed_code_temp = code.split("\n")
 parsed_code = []
 
 for i in parsed_code_temp:
-    if 'label' in i.lower():
-        i[1].lower()
-        parsed_code.append(i.split()[1::])
-    if 'label' not in i.lower():
-        i[0].lower()
+        if len(i.split()) == 0:
+            continue
         parsed_code.append(i.split())
 # print(parsed_code)
 

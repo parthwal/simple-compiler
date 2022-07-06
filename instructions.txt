@@ -9,6 +9,8 @@ st R1 X
 jlt exit
 X: mul R3 R1 R2
 sub R2 R2 R3
+
+
 cmp R2 R4
 je exit
 jmp X
