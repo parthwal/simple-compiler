@@ -397,14 +397,18 @@ def printString(a):
     print("\n")
 
 def print_code(parsed_code=parsed_code):
-    for instruct in parsed_code:
-        if instruct[0] in isa_type.keys():
-            printing=SYN_PRINT[isa_type[instruct[0]]](instruct)
-            if printing!=None:
-                print(*printing,sep='')
-        else:
-            # hprint(instruct)
-            pass
+    with open('printBinary.txt','w') as wTB:
+        for instruct in parsed_code:
+            if instruct[0] in isa_type.keys():
+                printing=SYN_PRINT[isa_type[instruct[0]]](instruct)
+                if printing!=None:
+                    temp = ''.join([str(elem) for elem in printing])
+                    wTB.write(temp)
+                    wTB.write('\n')
+                    print(temp)
+            else:
+                # hprint(instruct)
+                pass
 
 # print(parsed_code)
 syntax_check(parsed_code)
