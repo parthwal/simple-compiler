@@ -106,6 +106,8 @@ def initial_check(p_code):
         f.write('MEMORY LIMIT REACHED')
         raise OverflowError("MEMORY LIMIT REACHED")
     for i in range(len(p_code)):
+        if len(p_code[i]) == 1:
+            continue
         if VAR_F:
             if p_code[i][0] != "var":
                 VAR_F = False
