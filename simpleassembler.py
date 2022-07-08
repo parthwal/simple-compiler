@@ -1,12 +1,12 @@
 from shutil import ExecError
-
+import sys
 #file input
-f = open("instructions.txt")
-code = f.read().strip()
+# f = open("instructions.txt")
+code = sys.stdin.read().strip()
 code.replace(" ","")
 code.replace("\n","")
-# print(code)
-f.close()
+#print(code)
+# f.close()
 
 MAX_NO = 255
 MIN_NO = 0
