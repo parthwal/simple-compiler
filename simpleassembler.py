@@ -98,7 +98,7 @@ f=open('printBinary.txt','w')
 
 def initial_check(p_code):
     global VAR_F
-    global HLT_F
+    hLT_F = False
     line_c = 0
     if len(p_code) > MAX_MEM:
         f.write(str(line_counter+1))
@@ -106,38 +106,39 @@ def initial_check(p_code):
         f.write('MEMORY LIMIT REACHED')
         raise OverflowError("MEMORY LIMIT REACHED")
     for i in range(len(p_code)):
-        if len(p_code[i]) == 1:
+        if len(p_code[i]) == 0:
+            # print(p_code[i])
             continue
         if VAR_F:
             if p_code[i][0] != "var":
                 VAR_F = False
-                continue
+                # continue
         else:
             if p_code[i][0] == "var":
                 f.write(str(line_counter+1))
                 f.write(': ')
                 f.write('VARIABLES CAN ONLY DE DEFINED AT STARTING OF THE CODE')
                 raise ExecError("VARIABLES CAN ONLY DE DEFINED AT STARTING OF THE CODE")
-
+        
         if p_code[i][0][-1] == ':':
             labels[p_code[i][0][:-1:]] = line_c
         
-        if HLT_F:
+        if hLT_F:
             f.write(str(line_counter+1))
             f.write(': ')
             f.write('HALT CAN ONLY BE CALLED AT THE END')
             raise NameError("HALT CAN ONLY BE CALLED AT THE END")
         else:
             if p_code[i][0] == "hlt":
-                HLT_F = True
+                hLT_F = True
                 continue
             elif p_code[i][0][-1] == ":":
                 try:
                     if p_code[i][1] == "hlt":
-                        HLT_F = True
+                        hLT_F = True
                         continue
                 except IndexError:
-                    raise IndexError("EMPTY LABEL CANT BE USED")
+                     raise IndexError("EMPTY LABEL CANT BE USED")
         line_c += 1
 
     if(p_code[-1][0] != "hlt"):
@@ -336,7 +337,7 @@ def xcheck(i):
     global line_counter
     if len(i) == 3:
         if i[1] in REGISTERS.keys():
-            if i[1] != "FLAGS":
+            # if i[1] != "FLAGS":
                 if i[2][0] == '$':
                     x = int(i[2][1::])
                     if(x <= MAX_NO and x >= MIN_NO):
@@ -359,12 +360,12 @@ def xcheck(i):
                     f.write(': ')
                     f.write('INVALID PARAMETER')
                     raise SyntaxError("INVALID PARAMETER")
-            else:
-                print(line_counter)
-                f.write(str(line_counter+1))
-                f.write(': ')
-                f.write('THIS OPERATION CANT USE FLAG REGISTER')
-                raise ValueError("THIS OPPERATION CANT USE FLAG REGISTER")
+            # else:
+            #     print(line_counter)
+            #     f.write(str(line_counter+1))
+            #     f.write(': ')
+            #     f.write('THIS OPERATION CANT USE FLAG REGISTER')
+            #     raise ValueError("THIS OPPERATION CANT USE FLAG REGISTER")
         else:
             print(line_counter)
             f.write(str(line_counter+1))
