@@ -93,7 +93,7 @@ for i in parsed_code_temp:
     # if 'label' not in i.lower():
     #     i[0].lower()
     #     
-print(parsed_code)
+# print(parsed_code)
 
 f=open('printBinary.txt','w')
 
