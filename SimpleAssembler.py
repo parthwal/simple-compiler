@@ -1,8 +1,9 @@
 from shutil import ExecError
 import sys
 #file input
-# f = open("instructions.txt")
-code = sys.stdin.read().strip()
+f = open("instructions.txt")
+code=f.read().strip()
+# code = sys.stdin.read().strip()
 code.replace(" ","")
 code.replace("\n","")
 #print(code)
@@ -344,6 +345,8 @@ def xcheck(i):
                     if(x <= MAX_NO and x >= MIN_NO):
                         line_counter = line_counter+ 1
                         MOV_TYPE='i'
+                        if i[1]=='FLAGS':
+                            MOV_TYPE='r'
                         return True
                     else:
                         # print(line_counter)
@@ -512,9 +515,8 @@ def xprint(i):
         res.extend(REGISTERS[i[2]])
     return res
 # def hprint(i):
-#     res=[]
-#     res.extend(isa_commands[i[0]])
-#     return res
+#     print_code(i)
+
 
 SYN_PRINT ={
     "A" : aprint,
@@ -531,7 +533,8 @@ def printString(a):
     print(' '.join(a))
     print("\n")
 
-def print_code(parsed_code=parsed_code):
+def print_code(parsed_code):
+    # counting=0
     with open('printBinary.txt','w') as wTB:
         for instruct in parsed_code:
             if instruct[0] in isa_type.keys():
@@ -541,11 +544,17 @@ def print_code(parsed_code=parsed_code):
                     wTB.write(temp)
                     wTB.write('\n')
                     print(temp)
+                    # counting+=1
             else:
-                # hprint(instruct)
-                pass
+                printing=SYN_PRINT[isa_type[instruct[1]]](instruct[1::])
+                if printing!=None:
+                    temp=''.join([str(elem) for elem in printing])
+                    wTB.write(temp)
+                    wTB.write('\n')
+                    print(temp)
+                    # counting+=1
 
 # print(parsed_code)
 syntax_check(parsed_code)
-print_code()
+print_code(parsed_code)
 f.close()
