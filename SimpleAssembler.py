@@ -139,6 +139,7 @@ def initial_check(p_code):
                         hLT_F = True
                         continue
                 except IndexError:
+                     print(line_c)
                      raise IndexError("EMPTY LABEL CANT BE USED")
         line_c += 1
 
