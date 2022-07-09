@@ -1,9 +1,9 @@
 from shutil import ExecError
 import sys
 #file input
-f = open("instructions.txt")
-code=f.read().strip()
-# code = sys.stdin.read().strip()
+# f = open("instructions.txt")
+# code=f.read().strip()
+code = sys.stdin.read().strip()
 code.replace(" ","")
 code.replace("\n","")
 #print(code)
