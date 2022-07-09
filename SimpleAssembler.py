@@ -500,19 +500,26 @@ def gprint(i):
 def xprint(i):
     global MOV_TYPE
     res=[]
-    if MOV_TYPE=='i':
-        # res=[]
-        res.extend(isa_commands['movi'])
-        res.extend(REGISTERS[i[1]])
-        temp=int(i[2][1::])
-        res.extend(f'{temp:08b}')
-        # return res
-    elif MOV_TYPE=='r':
-        # res=[]
+    if i[1]=='FLAGS':
         res.extend(isa_commands['movr'])
         res.extend('00000')
         res.extend(REGISTERS[i[1]])
         res.extend(REGISTERS[i[2]])
+    else:    
+        if MOV_TYPE=='i':
+            # res=[]
+            res.extend(isa_commands['movi'])
+            res.extend(REGISTERS[i[1]])
+            temp=int(i[2][1::])
+            res.extend(f'{temp:08b}')
+            # print(MOV_TYPE)
+            # return res
+        elif MOV_TYPE=='r':
+            # res=[]
+            res.extend(isa_commands['movr'])
+            res.extend('00000')
+            res.extend(REGISTERS[i[1]])
+            res.extend(REGISTERS[i[2]])
     return res
 # def hprint(i):
 #     print_code(i)
