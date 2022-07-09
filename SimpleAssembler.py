@@ -85,14 +85,15 @@ parsed_code = []
 for i in parsed_code_temp:
     if i==" " or i=='\n' or i=="" or i==None:
         continue
+    parsed_code.append(i.split())
     # print(parsed_code)
-    if 'label' in i.lower():
-        i[1].lower()
-        parsed_code.append(i.split()[1::])
-    if 'label' not in i.lower():
-        i[0].lower()
-        parsed_code.append(i.split())
-# print(parsed_code)
+    # if 'label' in i.lower():
+    #     i[1].lower()
+    #     parsed_code.append(i.split()[1::])
+    # if 'label' not in i.lower():
+    #     i[0].lower()
+    #     
+print(parsed_code)
 
 f=open('printBinary.txt','w')
 
@@ -391,6 +392,7 @@ SYN_CHECK ={
     } 
 
 def hcheck(i):
+    print(i)
     if i[0][-1] == ':':
         if len(i) > 1:
             if i[1] != 'var':
