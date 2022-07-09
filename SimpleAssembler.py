@@ -2,11 +2,12 @@ from shutil import ExecError
 import sys
 #file input
 # f = open("instructions.txt")
+# code=f.read().strip()
+# f.close()
 code = sys.stdin.read().strip()
 code.replace(" ","")
 code.replace("\n","")
 #print(code)
-# f.close()
 
 MAX_NO = 255
 MIN_NO = 0
@@ -345,6 +346,8 @@ def xcheck(i):
                     if(x <= MAX_NO and x >= MIN_NO):
                         line_counter = line_counter+ 1
                         MOV_TYPE='i'
+                        if i[1]=='FLAGS':
+                            MOV_TYPE='r'
                         return True
                     else:
                         # print(line_counter)
@@ -498,24 +501,30 @@ def gprint(i):
 def xprint(i):
     global MOV_TYPE
     res=[]
-    if MOV_TYPE=='i':
-        # res=[]
-        res.extend(isa_commands['movi'])
-        res.extend(REGISTERS[i[1]])
-        temp=int(i[2][1::])
-        res.extend(f'{temp:08b}')
-        # return res
-    elif MOV_TYPE=='r':
-        # res=[]
+    if i[1]=='FLAGS' or i[2]=='FLAGS':
         res.extend(isa_commands['movr'])
         res.extend('00000')
         res.extend(REGISTERS[i[1]])
         res.extend(REGISTERS[i[2]])
+    else:    
+        if MOV_TYPE=='i':
+            # res=[]
+            res.extend(isa_commands['movi'])
+            res.extend(REGISTERS[i[1]])
+            temp=int(i[2][1::])
+            res.extend(f'{temp:08b}')
+            # print(MOV_TYPE)
+            # return res
+        elif MOV_TYPE=='r':
+            # res=[]
+            res.extend(isa_commands['movr'])
+            res.extend('00000')
+            res.extend(REGISTERS[i[1]])
+            res.extend(REGISTERS[i[2]])
     return res
 # def hprint(i):
-#     res=[]
-#     res.extend(isa_commands[i[0]])
-#     return res
+#     print_code(i)
+
 
 SYN_PRINT ={
     "A" : aprint,
@@ -532,7 +541,8 @@ def printString(a):
     print(' '.join(a))
     print("\n")
 
-def print_code(parsed_code=parsed_code):
+def print_code(parsed_code):
+    # counting=0
     with open('printBinary.txt','w') as wTB:
         for instruct in parsed_code:
             if instruct[0] in isa_type.keys():
@@ -542,11 +552,17 @@ def print_code(parsed_code=parsed_code):
                     wTB.write(temp)
                     wTB.write('\n')
                     print(temp)
+                    # counting+=1
             else:
-                # hprint(instruct)
-                pass
+                printing=SYN_PRINT[isa_type[instruct[1]]](instruct[1::])
+                if printing!=None:
+                    temp=''.join([str(elem) for elem in printing])
+                    wTB.write(temp)
+                    wTB.write('\n')
+                    print(temp)
+                    # counting+=1
 
 # print(parsed_code)
 syntax_check(parsed_code)
-print_code()
+print_code(parsed_code)
 f.close()
