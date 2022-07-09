@@ -101,9 +101,9 @@ def initial_check(p_code):
     hLT_F = False
     line_c = 0
     if len(p_code) > MAX_MEM:
-        f.write(str(line_counter+1))
-        f.write(': ')
-        f.write('MEMORY LIMIT REACHED')
+        print(line_counter+1)
+        # print(": ")
+        print('MEMORY LIMIT REACHED')
         raise OverflowError("MEMORY LIMIT REACHED")
     for i in range(len(p_code)):
         if len(p_code[i]) == 0:
@@ -115,18 +115,18 @@ def initial_check(p_code):
                 # continue
         else:
             if p_code[i][0] == "var":
-                f.write(str(line_counter+1))
-                f.write(': ')
-                f.write('VARIABLES CAN ONLY DE DEFINED AT STARTING OF THE CODE')
+                print(line_counter+1)
+                # print(": ")
+                print('VARIABLES CAN ONLY DE DEFINED AT STARTING OF THE CODE')
                 raise ExecError("VARIABLES CAN ONLY DE DEFINED AT STARTING OF THE CODE")
         
         if p_code[i][0][-1] == ':':
             labels[p_code[i][0][:-1:]] = line_c
         
         if hLT_F:
-            f.write(str(line_counter+1))
-            f.write(': ')
-            f.write('HALT CAN ONLY BE CALLED AT THE END')
+            print(line_counter+1)
+            # print(": ")
+            print('HALT CAN ONLY BE CALLED AT THE END')
             raise NameError("HALT CAN ONLY BE CALLED AT THE END")
         else:
             if p_code[i][0] == "hlt":
@@ -146,9 +146,9 @@ def initial_check(p_code):
             if p_code[-1][1] == "hlt":
                 HLT_F = True
             else:
-                f.write(str(line_counter+1))
-                f.write(': ')
-                f.write('HALT NOT PRESENT')
+                print(line_counter+1)
+                # print(": ")
+                print('HALT NOT PRESENT')
                 raise NameError("HALT NOT PRESENT")
 
 def acheck(i):
@@ -156,23 +156,23 @@ def acheck(i):
     if len(i) == 4:
         for j in i[1::]:
             if j == "FLAGS":
-                print(line_counter)
-                f.write(str(line_counter+1))
-                f.write(': ')
-                f.write('FLAG REGISTER CANT BE USED WITH THIS COMMAND')
+                # print(line_counter)
+                print(line_counter+1)
+                # print(": ")
+                print('FLAG REGISTER CANT BE USED WITH THIS COMMAND')
                 raise ValueError("FLAG REGISTER CANT BE USED WITH THIS COMMAND")
             if not(j in REGISTERS.keys()):
-                print(line_counter)
-                f.write(str(line_counter+1))
-                f.write(': ')
-                f.write('UNKNOWN REGISTER USED')
+                # print(line_counter)
+                print(line_counter+1)
+                # print(": ")
+                print('UNKNOWN REGISTER USED')
                 raise ValueError("UNKNOWN REGISTER USED")
         line_counter = line_counter + 1
         return True 
-    print(line_counter) 
-    f.write(str(line_counter+1))
-    f.write(': ')
-    f.write('SYNTAX NOT FOLLOWED') 
+    # print(line_counter) 
+    print(line_counter+1)
+    # print(": ")
+    print('SYNTAX NOT FOLLOWED') 
     raise TypeError("SYNTAX NOT FOLLOWED")
 
 def bcheck(i):
@@ -186,34 +186,34 @@ def bcheck(i):
                         line_counter = line_counter+ 1
                         return True
                     else:
-                        print(line_counter)
-                        f.write(str(line_counter+1))
-                        f.write(': ')
-                        f.write('IMMEDIATE VALUE OFF RANGE')
+                        # print(line_counter)
+                        print(line_counter+1)
+                        # print(": ")
+                        print('IMMEDIATE VALUE OFF RANGE')
                         raise OverflowError("IMMEDIATE VALUE OFF RANGE")
                 else:
-                    print(line_counter)
-                    f.write(str(line_counter+1))
-                    f.write(': ')
-                    f.write('IMMEDIATE VALUE OFF RANGE')
+                    # print(line_counter)
+                    print(line_counter+1)
+                    # print(": ")
+                    print('IMMEDIATE VALUE OFF RANGE')
                     raise SyntaxError("EXPECTED A $ SIGN")
             else:
-                print(line_counter)
-                f.write(str(line_counter+1))
-                f.write(': ')
-                f.write('THIS OPERATION CANT USE FLAG REGISTER')
+                # print(line_counter)
+                print(line_counter+1)
+                # print(": ")
+                print('THIS OPERATION CANT USE FLAG REGISTER')
                 raise ValueError("THIS OPPERATION CANT USE FLAG REGISTER")
         else:
-            print(line_counter)
-            f.write(str(line_counter+1))
-            f.write(': ')
-            f.write('INVALID REGISTER')
+            # print(line_counter)
+            print(line_counter+1)
+            # print(": ")
+            print('INVALID REGISTER')
             raise ValueError("INVALID REGISTER")
     else:
-        print(line_counter)
-        f.write(str(line_counter+1))
-        f.write(': ')
-        f.write('SYNTAX NOT FOLLOWED')
+        # print(line_counter)
+        print(line_counter+1)
+        # print(": ")
+        print('SYNTAX NOT FOLLOWED')
         raise SyntaxError("SYNTAX NOT FOLLOWED")
 
 def ccheck(i):
@@ -221,23 +221,23 @@ def ccheck(i):
     if len(i) == 3:
         for j in i[1::]:
             if j == "FLAGS":
-                print(line_counter)
-                f.write(str(line_counter+1))
-                f.write(': ')
-                f.write('FLAG REGISTER CANT BE USED WITH THIS COMMAND')
+                # print(line_counter)
+                print(line_counter+1)
+                # print(": ")
+                print('FLAG REGISTER CANT BE USED WITH THIS COMMAND')
                 raise ValueError("FLAG REGISTER CANT BE USED WITH THIS COMMAND")
             if not(j in REGISTERS.keys()):
-                print(line_counter)
-                f.write(str(line_counter+1))
-                f.write(': ')
-                f.write('UNKNOWN REGISTER USED')
+                # print(line_counter)
+                print(line_counter+1)
+                # print(": ")
+                print('UNKNOWN REGISTER USED')
                 raise ValueError("UNKNOWN REGISTER USED")
         line_counter = line_counter + 1
         return True
-    print(line_counter)
-    f.write(str(line_counter+1))
-    f.write(': ')
-    f.write('SYNTAX NOT FOLLOWED')
+    # print(line_counter)
+    print(line_counter+1)
+    # print(": ")
+    print('SYNTAX NOT FOLLOWED')
     raise TypeError("SYNTAX NOT FOLLOWED")
 
 def dcheck(i):
@@ -249,28 +249,28 @@ def dcheck(i):
                     line_counter = line_counter + 1
                     return True
                 else:
-                    print(line_counter)
-                    f.write(str(line_counter+1))
-                    f.write(': ')
-                    f.write('VARIABLE DOES NOT EXIST')
+                    # print(line_counter)
+                    print(line_counter+1)
+                    # print(": ")
+                    print('VARIABLE DOES NOT EXIST')
                     raise NotImplementedError("VARIABLE DOES NOT EXIST")
             else:
-                print(line_counter)
-                f.write(str(line_counter+1))
-                f.write(': ')
-                f.write('THIS OPERATION CANT USE THE FLAG REGISTER')
+                # print(line_counter)
+                print(line_counter+1)
+                # print(": ")
+                print('THIS OPERATION CANT USE THE FLAG REGISTER')
                 raise ValueError("THIS OPERRATION CANT USE FLAG REGISTER")
         else:
-            print(line_counter)
-            f.write(str(line_counter+1))
-            f.write(': ')
-            f.write('INVALID REGISTER')
+            # print(line_counter)
+            print(line_counter+1)
+            # print(": ")
+            print('INVALID REGISTER')
             raise ValueError("INVALID REGISTER")
     else:
-        print(line_counter)
-        f.write(str(line_counter+1))
-        f.write(': ')
-        f.write('SYNTAX NOT FOLLOWED')
+        # print(line_counter)
+        print(line_counter+1)
+        # print(": ")
+        print('SYNTAX NOT FOLLOWED')
         raise SyntaxError("SYNTAX NOT FOLLOWED")
 
 def echeck(i):
@@ -283,16 +283,16 @@ def echeck(i):
             line_counter = line_counter + 1
             return True
         else:
-            print(line_counter)
-            f.write(str(line_counter+1))
-            f.write(': ')
-            f.write('MEM LOCATION DOES NOT EXIST')
+            # print(line_counter)
+            print(line_counter+1)
+            # print(": ")
+            print('MEM LOCATION DOES NOT EXIST')
             raise NotImplementedError("MEM LOCATION DOES NOT EXIST")
     else:
-        print(line_counter)
-        f.write(str(line_counter+1))
-        f.write(': ')
-        f.write('SYNTAX NOT FOLLOWED')
+        # print(line_counter)
+        print(line_counter+1)
+        # print(": ")
+        print('SYNTAX NOT FOLLOWED')
         raise SyntaxError("SYNTAX NOT FOLLOWED")
 
 def fcheck(i):
@@ -301,10 +301,10 @@ def fcheck(i):
         line_counter = line_counter + 1
         return True
     else:
-        print(line_counter)
-        f.write(str(line_counter+1))
-        f.write(': ')
-        f.write('HALT CANT HAVE ARGUMENTS')
+        # print(line_counter)
+        print(line_counter+1)
+        # print(": ")
+        print('HALT CANT HAVE ARGUMENTS')
         raise SyntaxError("HALT CANT HAVE ARGUMENTS")
 
 def gcheck(i):
@@ -313,23 +313,23 @@ def gcheck(i):
     if VAR_F:
         if len(i) == 2:
             if(i[1] in var):
-                f.write(str(line_counter+1))
-                f.write(': ')
-                f.write('VAR ALREADY USED')
+                print(line_counter+1)
+                # print(": ")
+                print('VAR ALREADY USED')
                 raise ExecError("VAR ALREADY USED")
             var[i[1]] = len(var)
             return True
         else:
-            print(line_counter)
-            f.write(str(line_counter+1))
-            f.write(': ')
-            f.write('INVALID SYNTAX')
+            # print(line_counter)
+            print(line_counter+1)
+            # print(": ")
+            print('INVALID SYNTAX')
             raise SyntaxError("INVALID SYNTAX")
     else:
-        print(line_counter)
-        f.write(str(line_counter+1))
-        f.write(': ')
-        f.write('LABELS CANT HAVE VAR COMMANDS')
+        # print(line_counter)
+        print(line_counter+1)
+        # print(": ")
+        print('LABELS CANT HAVE VAR COMMANDS')
         raise ExecError("LABELS CANT HAVE VAR COMMANDS")
 
 def xcheck(i):
@@ -345,38 +345,38 @@ def xcheck(i):
                         MOV_TYPE='i'
                         return True
                     else:
-                        print(line_counter)
-                        f.write(str(line_counter+1))
-                        f.write(': ')
-                        f.write('IMMEDIATE VALUE OFF RANGE')
+                        # print(line_counter)
+                        print(line_counter+1)
+                        # print(": ")
+                        print('IMMEDIATE VALUE OFF RANGE')
                         raise OverflowError("IMMEDIATE VALUE OFF RANGE")
                 elif i[2] in REGISTERS:
                     line_counter = line_counter+ 1                    
                     MOV_TYPE='r'
                     return True
                 else:
-                    print(line_counter)
-                    f.write(str(line_counter+1))
-                    f.write(': ')
-                    f.write('INVALID PARAMETER')
+                    # print(line_counter)
+                    print(line_counter+1)
+                    # print(": ")
+                    print('INVALID PARAMETER')
                     raise SyntaxError("INVALID PARAMETER")
             # else:
-            #     print(line_counter)
-            #     f.write(str(line_counter+1))
-            #     f.write(': ')
-            #     f.write('THIS OPERATION CANT USE FLAG REGISTER')
+                print(line_counter)
+            #     print(line_counter+1)
+                print(": ")
+            #     print('THIS OPERATION CANT USE FLAG REGISTER')
             #     raise ValueError("THIS OPPERATION CANT USE FLAG REGISTER")
         else:
-            print(line_counter)
-            f.write(str(line_counter+1))
-            f.write(': ')
-            f.write('INVALID REGISTER')
+            # print(line_counter)
+            print(line_counter+1)
+            # print(": ")
+            print('INVALID REGISTER')
             raise ValueError("INVALID REGISTER")
     else:
-        print(line_counter)
-        f.write(str(line_counter+1))
-        f.write(': ')
-        f.write('SYNTAX NOT FOLLOWED')
+        # print(line_counter)
+        print(line_counter+1)
+        # print(": ")
+        print('SYNTAX NOT FOLLOWED')
         raise SyntaxError("SYNTAX NOT FOLLOWED")
 
 SYN_CHECK ={
@@ -398,24 +398,24 @@ def hcheck(i):
                 if i[1] in isa_type.keys():
                     SYN_CHECK[isa_type[i[1]]](i[1::])
                 else:
-                    f.write(str(line_counter+1))
-                    f.write(': ')
-                    f.write('INVALID SYNTAX')
+                    print(line_counter+1)
+                    # print(": ")
+                    print('INVALID SYNTAX')
                     raise SyntaxError("INVALID SYNTAX")
             else:
-                f.write(str(line_counter+1))
-                f.write(': ')
-                f.write('LABELS CANT HAVE VAR COMMAND')
+                print(line_counter+1)
+                # print(": ")
+                print('LABELS CANT HAVE VAR COMMAND')
                 raise ExecError("LABELS CANT HAVE VAR COMMAND")
         else:
-            f.write(str(line_counter+1))
-            f.write(': ')
-            f.write('INVALID SYNTAX')
+            print(line_counter+1)
+            # print(": ")
+            print('INVALID SYNTAX')
             raise SyntaxError("INVALID SYNTAX")
     else:
-        f.write(str(line_counter+1))
-        f.write(': ')
-        f.write('INVALID SYNTAX')
+        print(line_counter+1)
+        # print(": ")
+        print('INVALID SYNTAX')
         raise SyntaxError("INVALID SYNTAX")
      
 def syntax_check(p_code):
