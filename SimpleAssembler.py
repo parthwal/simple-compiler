@@ -3,11 +3,11 @@ import sys
 #file input
 # f = open("instructions.txt")
 # code=f.read().strip()
+# f.close()
 code = sys.stdin.read().strip()
 code.replace(" ","")
 code.replace("\n","")
 #print(code)
-# f.close()
 
 MAX_NO = 255
 MIN_NO = 0
@@ -500,7 +500,7 @@ def gprint(i):
 def xprint(i):
     global MOV_TYPE
     res=[]
-    if i[1]=='FLAGS':
+    if i[1]=='FLAGS' or i[2]=='FLAGS':
         res.extend(isa_commands['movr'])
         res.extend('00000')
         res.extend(REGISTERS[i[1]])
