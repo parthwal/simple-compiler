@@ -1,4 +1,7 @@
 # utility functions
+import re
+
+
 def bintodeci(bin):
     ret = 0
     counter = 0
@@ -99,18 +102,35 @@ def decoder(code):
     
 
 def add(code):
+    REGISTERS[code[1]] = REGISTERS[code[2]] + REGISTERS[code[3]]
+    if(REGISTERS[code[1]] >255):
+        REGISTERS[code[1]] = 255
     return
+
 def sub(code):
+    REGISTERS[code[1]] = REGISTERS[code[2]] - REGISTERS[code[3]]
+    if(REGISTERS[code[1]] < 0):
+        REGISTERS[code[1]] = 0
     return
+
 def movi(code):
+    REGISTERS[code[1]] = code[2]
     return
+
 def movr(code):
+    REGISTERS[code[1]] = REGISTERS[code[2]]
     return
+
 def ld(code):
+    REGISTERS[code[1]] = MEMORY[code[2]]
     return
+
 def st(code):
+    MEMORY[code[2]] = REGISTERS[code[1]]
     return
+
 def mul(code):
+    
     return
 def div(code):
     return
