@@ -1,7 +1,6 @@
+import sys
+
 # utility functions
-import re
-
-
 def bintodeci(bin):
     ret = 0
     counter = 0
@@ -12,22 +11,51 @@ def bintodeci(bin):
         counter += 1
     return ret
 
+def decitobin(deci):
+    x = ["0"]*16
+    d = deci
+    i = 15
+    while(d != 0):
+        x[i] = str(d%2)
+        d = d//2
+    y = ''.join(x)
+    return y
+
 #start of program
+
 program_counter = 0
 HLT_F = False
 
 REGISTERS = []
-for i in range(6):
-    REGISTERS[i] = 0
+for i in range(8):
+    REGISTERS[i] = '0'*16
+
+FLAG_R = {
+    'V':0,
+    'L':0,
+    'G':0,
+    'E':0,
+    'written': False
+}
+
+def flag_set():
+    x = ['0']*16
+    x[0] = str(FLAG_R['E'])
+    x[1] = str(FLAG_R['G'])
+    x[2] = str(FLAG_R['L'])
+    x[3] = str(FLAG_R['V'])
+    REGISTERS[7] = ''.join(x)
 
 MEMORY = []
 for i in range(256):
     MEMORY[i] = "0"*16
 
 # file input and parsing to be done here (assuming error free file).
-#.
-#.
-#.
+def initialize():
+    code = sys.stdin.read().strip()
+    p_code = code.split("\n")
+    for i in range(len(p_code)):
+        MEMORY[i] = p_code[i]
 
 isa_type = {
     "10000":"A",
@@ -102,62 +130,138 @@ def decoder(code):
     
 
 def add(code):
-    REGISTERS[code[1]] = REGISTERS[code[2]] + REGISTERS[code[3]]
-    if(REGISTERS[code[1]] >255):
-        REGISTERS[code[1]] = 255
-    return
+    a = bintodeci(REGISTERS[code[1]]) + bintodeci(REGISTERS[code[2]])
+    if(a >2*16):
+        a = a%(2**16)
+    REGISTERS[code[3]] = decitobin(a)
+    return program_counter + 1
 
 def sub(code):
-    REGISTERS[code[1]] = REGISTERS[code[2]] - REGISTERS[code[3]]
-    if(REGISTERS[code[1]] < 0):
-        REGISTERS[code[1]] = 0
-    return
+    a = bintodeci(REGISTERS[code[1]]) - bintodeci(REGISTERS[code[2]])
+    if(a < 0):
+        a = 0
+    REGISTERS[code[3]] = decitobin(a)
+    return program_counter + 1
 
 def movi(code):
-    REGISTERS[code[1]] = code[2]
-    return
+    a = code[2]
+    REGISTERS[code[1]] = decitobin(a)
+    return program_counter + 1
 
 def movr(code):
-    REGISTERS[code[1]] = REGISTERS[code[2]]
-    return
+    a = REGISTERS[code[2]]
+    REGISTERS[code[1]] = a
+    return program_counter + 1
 
 def ld(code):
     REGISTERS[code[1]] = MEMORY[code[2]]
-    return
+    return program_counter + 1
 
 def st(code):
     MEMORY[code[2]] = REGISTERS[code[1]]
-    return
+    return program_counter + 1
 
 def mul(code):
-    
-    return
+    a = bintodeci(REGISTERS[code[1]]) * bintodeci(REGISTERS[code[2]])
+    if(a >2**16):
+        a = REGISTERS[code[3]] % 2**16
+    REGISTERS[code[1]] = decitobin(a)
+    return program_counter + 1
+
 def div(code):
-    return
+    a = bintodeci(REGISTERS[code[1]]) // bintodeci(REGISTERS[code[2]])
+    b = bintodeci(REGISTERS[code[1]]) %  bintodeci(REGISTERS[code[2]])
+    REGISTERS[0] = decitobin(a)
+    REGISTERS[1] = decitobin(b)
+    return program_counter + 1
+
 def rs(code):
-    return
+    a = bintodeci(REGISTERS[code[1]]) // (2**code[2])
+    REGISTERS[code[1]] = decitobin(a)
+    return program_counter + 1
+
 def ls(code):
-    return
+    a = REGISTERS[code[1]] * (2**code[2])
+    if(a >2**16):
+        a = a % 2**16
+    REGISTERS[code[1]] = decitobin(a)
+    return program_counter + 1
+
 def xor(code):
-    return
+    a = REGISTERS[code[1]]
+    b = REGISTERS[code[2]]
+    x = 0
+    c = ['0']*16
+    for i in range(16):
+        x = (int(a[i]) and not(int(b[i]))) or (not(int(a[i])) and int(b[i]))
+        c[i] = str[x]
+    REGISTERS[3] = ''.join(c)
+    return program_counter + 1
+
 def Or(code):
-    return
+    a = REGISTERS[code[1]]
+    b = REGISTERS[code[2]]
+    x = 0
+    c = ['0']*16
+    for i in range(16):
+        x = (int(a[i])) or (int(b[i]))
+        c[i] = str[x]
+    REGISTERS[3] = ''.join(c)
+    return program_counter + 1
+
 def And(code):
-    return
+    a = REGISTERS[code[1]]
+    b = REGISTERS[code[2]]
+    x = 0
+    c = ['0']*16
+    for i in range(16):
+        x = (int(a[i])) and (int(b[i]))
+        c[i] = str[x]
+    REGISTERS[3] = ''.join(c)
+    return program_counter + 1
+
 def Not(code):
-    return
+    a = REGISTERS[code[1]]
+    c = ['0']*16
+    x = 0
+    for i in  range(16):
+        c[i] = str(not(a[i]))
+    REGISTERS[2] = ''.join(c)
+    return program_counter + 1
+
 def cmp(code):
-    return
+    x = (bintodeci(REGISTERS[code[1]]))
+    y = (bintodeci(REGISTERS[code[2]]))
+    if(x == y):
+        FLAG_R["E"] = 1
+    elif(x > y):
+        FLAG_R["G"] = 1
+    else:
+        FLAG_R["L"] = 1
+    return program_counter + 1
+
 def jmp(code):
-    return
+    PC= code[1]
+    return PC
+
 def jlt(code):
-    return
+    if FLAG_R['L'] == 1:
+        PC = code[1]
+    return PC
+
 def jgt(code):
-    return
+    if FLAG_R["G"] == 1:
+        PC = code[1]
+    return PC
+
 def je(code):
-    return
+    if FLAG_R["E"] == 1:
+        PC =code[1]
+    return PC
+
 def hlt(code):
-    return
+    HLT_F = True
+    return program_counter
 
 isa_exe = {
     "10000": add ,
@@ -183,4 +287,5 @@ isa_exe = {
 }
 
 def exec(code):
-    return
+    x = decoder(code)
+    return isa_exe[x[0]](x)
