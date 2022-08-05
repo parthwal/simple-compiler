@@ -168,8 +168,8 @@ def movi(code):
     return program_counter + 1 #
 
 def movr(code):
-    a = REGISTERS[code[2]]
-    REGISTERS[code[1]] = a
+    a = REGISTERS[code[1]]
+    REGISTERS[code[2]] = a
     return program_counter + 1 #
 
 def ld(code):
