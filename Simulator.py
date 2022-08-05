@@ -3,9 +3,14 @@ import sys
 
 '''
 0. FATAL ERROR IN ASSEMBLER MOVE DONT WORK FOR MULTIPLE TYPES
-1. flag is printing in reverse
-2. flag dont hold for consecutive changes
-
+0. FATAL ERROR IN ASSEMBLER RS LS PROVIDING WRONG OUTPUT
+1. flag is printing in reverse ==
+2. flag dont hold for consecutive changes ==
+3. something wrong wirh ls and rs ==
+4. all logical operations are broken ==
+5. check for harder test case with multiple things hapenning
+6. fix PC val ==
+7. check jump instructions
 '''
 # utility functions
 def bintodeci(bin):
@@ -48,10 +53,10 @@ FLAG_R = {
 
 def flag_set():
     x = ['0']*16
-    x[0] = str(FLAG_R['E'])
-    x[1] = str(FLAG_R['G'])
-    x[2] = str(FLAG_R['L'])
-    x[3] = str(FLAG_R['V'])
+    x[15] = str(FLAG_R['E'])
+    x[14] = str(FLAG_R['G'])
+    x[13] = str(FLAG_R['L'])
+    x[14] = str(FLAG_R['V'])
     REGISTERS[7] = ''.join(x)
 
 MEMORY = [0]*256
@@ -139,7 +144,7 @@ def decoder(code):
 
 def add(code):
     a = bintodeci(REGISTERS[code[1]]) + bintodeci(REGISTERS[code[2]])
-    if(a >2*16):
+    if(a >2**16):
         a = a%(2**16)
         FLAG_R['V'] = 1
         FLAG_R["written"] = True
@@ -210,9 +215,9 @@ def xor(code):
     x = 0
     c = ['0']*16
     for i in range(16):
-        x = (int(a[i]) and not(int(b[i]))) or (not(int(a[i])) and int(b[i]))
-        c[i] = str[x]
-    REGISTERS[3] = ''.join(c)
+        x = (bool(int(a[i])) and not(bool(int(b[i])))) or (not(bool(int(a[i]))) and bool(int(b[i])))
+        c[i] = str(int(x))
+    REGISTERS[code[3]] = ''.join(c)
     return program_counter + 1 #
 
 def Or(code):
@@ -221,9 +226,9 @@ def Or(code):
     x = 0
     c = ['0']*16
     for i in range(16):
-        x = (int(a[i])) or (int(b[i]))
-        c[i] = str[x]
-    REGISTERS[3] = ''.join(c)
+        x = (bool(int(a[i]))) or (bool(int(b[i])))
+        c[i] = str(int(x))
+    REGISTERS[code[3]] = ''.join(c)
     return program_counter + 1 #
 
 def And(code):
@@ -232,9 +237,9 @@ def And(code):
     x = 0
     c = ['0']*16
     for i in range(16):
-        x = (int(a[i])) and (int(b[i]))
-        c[i] = str[x]
-    REGISTERS[3] = ''.join(c)
+        x = (bool(int(a[i]))) and (bool(int(b[i])))
+        c[i] = str(int(x))
+    REGISTERS[code[3]] = ''.join(c)
     return program_counter + 1 #
 
 def Not(code):
@@ -242,8 +247,8 @@ def Not(code):
     c = ['0']*16
     x = 0
     for i in  range(16):
-        c[i] = str(not(a[i]))
-    REGISTERS[2] = ''.join(c)
+        c[i] = str(int(not(bool(int(a[i])))))
+    REGISTERS[code[2]] = ''.join(c)
     return program_counter + 1 #
 
 def cmp(code):
@@ -315,7 +320,7 @@ def exec(code):
     return isa_exe[x[0]](x)
 
 def reg_dump():
-    print(decitobin(program_counter),REGISTERS[0],REGISTERS[1],REGISTERS[2],REGISTERS[3],REGISTERS[4],REGISTERS[5],REGISTERS[6],REGISTERS[7])
+    print(decitobin(program_counter)[8:16],REGISTERS[0],REGISTERS[1],REGISTERS[2],REGISTERS[3],REGISTERS[4],REGISTERS[5],REGISTERS[6],REGISTERS[7])
 
 def mem_dump():
     for i in MEMORY:
@@ -324,12 +329,12 @@ def mem_dump():
 
 initialize()
 while(not(HLT_F)):
-    x = False
-    if(FLAG_R["written"]):
-        x = True
     code = MEMORY[program_counter]
     new_pc = exec(code)
-    if(x):
+    if(FLAG_R["written"]):
+        FLAG_R["written"] = False
+        flag_set()
+    else:
         FLAG_R["E"] = 0
         FLAG_R["G"] = 0
         FLAG_R["L"] = 0

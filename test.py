@@ -19,4 +19,4 @@ def decitobin(deci):
     y = ''.join(x)
     return y
 
-print(decitobin(10),bintodeci("1010"))
+print(decitobin(10),bintodeci("1010"),bool("1"),bool(int("0")),int(True),int(False))
