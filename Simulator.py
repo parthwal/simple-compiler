@@ -1,5 +1,12 @@
 import sys
 #NEED DEBUGGING ESPICIALY FLAG AND JUMP FUNCTIONS
+
+'''
+0. FATAL ERROR IN ASSEMBLER MOVE DONT WORK FOR MULTIPLE TYPES
+1. flag is printing in reverse
+2. flag dont hold for consecutive changes
+
+'''
 # utility functions
 def bintodeci(bin):
     ret = 0
@@ -138,7 +145,7 @@ def add(code):
         FLAG_R["written"] = True
         flag_set()
     REGISTERS[code[3]] = decitobin(a)
-    return program_counter + 1
+    return program_counter + 1 #
 
 def sub(code):
     a = bintodeci(REGISTERS[code[1]]) - bintodeci(REGISTERS[code[2]])
@@ -148,54 +155,54 @@ def sub(code):
         FLAG_R["written"] = True
         flag_set()
     REGISTERS[code[3]] = decitobin(a)
-    return program_counter + 1
+    return program_counter + 1 #
 
 def movi(code):
     a = code[2]
     REGISTERS[code[1]] = decitobin(a)
-    return program_counter + 1
+    return program_counter + 1 #
 
 def movr(code):
     a = REGISTERS[code[2]]
     REGISTERS[code[1]] = a
-    return program_counter + 1
+    return program_counter + 1 #
 
 def ld(code):
     REGISTERS[code[1]] = MEMORY[code[2]]
-    return program_counter + 1
+    return program_counter + 1 #
 
 def st(code):
     MEMORY[code[2]] = REGISTERS[code[1]]
-    return program_counter + 1
+    return program_counter + 1 #
 
 def mul(code):
     a = bintodeci(REGISTERS[code[1]]) * bintodeci(REGISTERS[code[2]])
     if(a >2**16):
         a = REGISTERS[code[3]] % 2**16
-    REGISTERS[code[1]] = decitobin(a)
-    return program_counter + 1
+    REGISTERS[code[3]] = decitobin(a)
+    return program_counter + 1 #
 
 def div(code):
     a = bintodeci(REGISTERS[code[1]]) // bintodeci(REGISTERS[code[2]])
     b = bintodeci(REGISTERS[code[1]]) %  bintodeci(REGISTERS[code[2]])
     REGISTERS[0] = decitobin(a)
     REGISTERS[1] = decitobin(b)
-    return program_counter + 1
+    return program_counter + 1 #
 
 def rs(code):
     a = bintodeci(REGISTERS[code[1]]) // (2**code[2])
     REGISTERS[code[1]] = decitobin(a)
-    return program_counter + 1
+    return program_counter + 1 #
 
 def ls(code):
-    a = REGISTERS[code[1]] * (2**code[2])
+    a = bintodeci(REGISTERS[code[1]]) * (2**code[2])
     if(a >2**16):
         a = a % 2**16
         FLAG_R['V'] = 1
         FLAG_R["written"] = True
         flag_set()
     REGISTERS[code[1]] = decitobin(a)
-    return program_counter + 1
+    return program_counter + 1 #
 
 def xor(code):
     a = REGISTERS[code[1]]
@@ -206,7 +213,7 @@ def xor(code):
         x = (int(a[i]) and not(int(b[i]))) or (not(int(a[i])) and int(b[i]))
         c[i] = str[x]
     REGISTERS[3] = ''.join(c)
-    return program_counter + 1
+    return program_counter + 1 #
 
 def Or(code):
     a = REGISTERS[code[1]]
@@ -217,7 +224,7 @@ def Or(code):
         x = (int(a[i])) or (int(b[i]))
         c[i] = str[x]
     REGISTERS[3] = ''.join(c)
-    return program_counter + 1
+    return program_counter + 1 #
 
 def And(code):
     a = REGISTERS[code[1]]
@@ -228,7 +235,7 @@ def And(code):
         x = (int(a[i])) and (int(b[i]))
         c[i] = str[x]
     REGISTERS[3] = ''.join(c)
-    return program_counter + 1
+    return program_counter + 1 #
 
 def Not(code):
     a = REGISTERS[code[1]]
@@ -237,7 +244,7 @@ def Not(code):
     for i in  range(16):
         c[i] = str(not(a[i]))
     REGISTERS[2] = ''.join(c)
-    return program_counter + 1
+    return program_counter + 1 #
 
 def cmp(code):
     x = (bintodeci(REGISTERS[code[1]]))
@@ -250,7 +257,7 @@ def cmp(code):
         FLAG_R["L"] = 1
     FLAG_R["written"] = True
     flag_set()
-    return program_counter + 1
+    return program_counter + 1 # partial
 
 def jmp(code):
     PC = program_counter + 1
@@ -276,6 +283,7 @@ def je(code):
     return PC
 
 def hlt(code):
+    global HLT_F
     HLT_F = True
     return program_counter
 
