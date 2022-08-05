@@ -1,5 +1,5 @@
 import sys
-
+#NEED DEBUGGING ESPICIALY FLAG AND JUMP FUNCTIONS
 # utility functions
 def bintodeci(bin):
     ret = 0
@@ -7,17 +7,18 @@ def bintodeci(bin):
     max = len(bin)
     for i in bin:
         if(i == "1"):
-            ret += 2**(max-counter)
+            ret += 2**(max-counter-1)
         counter += 1
     return ret
 
 def decitobin(deci):
     x = ["0"]*16
     d = deci
-    i = 15
-    while(d != 0):
-        x[i] = str(d%2)
+    i = 16
+    while(d != 0 or i != 0):
+        x[i-1] = str(d%2)
         d = d//2
+        i -= 1
     y = ''.join(x)
     return y
 
@@ -26,7 +27,7 @@ def decitobin(deci):
 program_counter = 0
 HLT_F = False
 
-REGISTERS = []
+REGISTERS = [0]*8
 for i in range(8):
     REGISTERS[i] = '0'*16
 
@@ -46,7 +47,7 @@ def flag_set():
     x[3] = str(FLAG_R['V'])
     REGISTERS[7] = ''.join(x)
 
-MEMORY = []
+MEMORY = [0]*256
 for i in range(256):
     MEMORY[i] = "0"*16
 
@@ -107,7 +108,7 @@ def dparse(code):
 
 def eparse(code):
     opcode = code[:5:]
-    mem = bintodeci[8:16:]
+    mem = bintodeci(code[8:16:])
     return [opcode,mem]
 
 def fparse(code):
@@ -133,6 +134,9 @@ def add(code):
     a = bintodeci(REGISTERS[code[1]]) + bintodeci(REGISTERS[code[2]])
     if(a >2*16):
         a = a%(2**16)
+        FLAG_R['V'] = 1
+        FLAG_R["written"] = True
+        flag_set()
     REGISTERS[code[3]] = decitobin(a)
     return program_counter + 1
 
@@ -140,6 +144,9 @@ def sub(code):
     a = bintodeci(REGISTERS[code[1]]) - bintodeci(REGISTERS[code[2]])
     if(a < 0):
         a = 0
+        FLAG_R['V'] = 1
+        FLAG_R["written"] = True
+        flag_set()
     REGISTERS[code[3]] = decitobin(a)
     return program_counter + 1
 
@@ -184,6 +191,9 @@ def ls(code):
     a = REGISTERS[code[1]] * (2**code[2])
     if(a >2**16):
         a = a % 2**16
+        FLAG_R['V'] = 1
+        FLAG_R["written"] = True
+        flag_set()
     REGISTERS[code[1]] = decitobin(a)
     return program_counter + 1
 
@@ -238,23 +248,29 @@ def cmp(code):
         FLAG_R["G"] = 1
     else:
         FLAG_R["L"] = 1
+    FLAG_R["written"] = True
+    flag_set()
     return program_counter + 1
 
 def jmp(code):
+    PC = program_counter + 1
     PC= code[1]
     return PC
 
 def jlt(code):
+    PC = program_counter + 1
     if FLAG_R['L'] == 1:
         PC = code[1]
     return PC
 
 def jgt(code):
+    PC = program_counter + 1
     if FLAG_R["G"] == 1:
         PC = code[1]
     return PC
 
 def je(code):
+    PC = program_counter + 1
     if FLAG_R["E"] == 1:
         PC =code[1]
     return PC
@@ -289,3 +305,31 @@ isa_exe = {
 def exec(code):
     x = decoder(code)
     return isa_exe[x[0]](x)
+
+def reg_dump():
+    print(decitobin(program_counter),REGISTERS[0],REGISTERS[1],REGISTERS[2],REGISTERS[3],REGISTERS[4],REGISTERS[5],REGISTERS[6],REGISTERS[7])
+
+def mem_dump():
+    for i in MEMORY:
+        print(i)
+
+
+initialize()
+while(not(HLT_F)):
+    x = False
+    if(FLAG_R["written"]):
+        x = True
+    code = MEMORY[program_counter]
+    new_pc = exec(code)
+    if(x):
+        FLAG_R["E"] = 0
+        FLAG_R["G"] = 0
+        FLAG_R["L"] = 0
+        FLAG_R["V"] = 0
+        FLAG_R["written"] = False
+        flag_set()
+    reg_dump()
+    program_counter = new_pc
+mem_dump()
+
+
