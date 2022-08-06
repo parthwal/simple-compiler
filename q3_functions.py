@@ -1,6 +1,10 @@
-inp="1.5"
+inp="10"
 def decToCSE(inp):
     print(inp)
+    if '.' not in inp:
+        print("Integer value does not require cse112 floating point representation")
+        exit()
+        # inp+='.0'
     if float(inp)<1:
         print("Can't store values under 1")
         exit()
