@@ -58,7 +58,7 @@ def CSEToDec(reg):
         sum=(sum+int(i))/2
     post_dec=float(f'{sum}')
     out=pre_dec+post_dec
-    print(out)
+    # print(out)
     return(out)
 
 #start of program
@@ -87,7 +87,7 @@ def flag_set():
     REGISTERS[7] = ''.join(x)
 
 def decToCSE(inp):
-    print(inp)
+    # print(inp)
     if '.' not in inp:
         # print("Integer value does not require cse112 floating point representation")
         # exit()
@@ -96,6 +96,9 @@ def decToCSE(inp):
         # print("Can't store values under 1") #overplow clamp to 0
         # exit()
         inp = '0.0'
+        FLAG_R['V'] = 1
+        FLAG_R["written"] = True
+        flag_set()
     num=inp.split(".")
     # print(num)
     pre_dec=num[0]
@@ -120,10 +123,8 @@ def decToCSE(inp):
     # print(f'{first}.{second}')
     mantissa=f'{first[1::]}{second}'
     # print(mantissa)
-    if len(mantissa)>5:
-        FLAG_R['V'] = 1
-        FLAG_R["written"] = True
-        flag_set()
+    # if len(mantissa)>5:
+        
     #     # print("Mantissa longer than 5, Truncating till 5 digits")
     mantissa=mantissa[:5:]
     # print(mantissa)
@@ -146,7 +147,7 @@ def decToCSE(inp):
     cse_rep=exponent+mantissa
     # print(cse_rep)
     cse_rep='00000000'+cse_rep
-    print(cse_rep)
+    # print(cse_rep)
     return(cse_rep)
 
 MEMORY = [0]*256
