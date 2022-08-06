@@ -1,10 +1,10 @@
-inp="10"
+inp="193.2"
 def decToCSE(inp):
     print(inp)
     if '.' not in inp:
         print("Integer value does not require cse112 floating point representation")
-        exit()
-        # inp+='.0'
+        # exit()
+        inp+='.0'
     if float(inp)<1:
         print("Can't store values under 1")
         exit()
@@ -40,8 +40,8 @@ def decToCSE(inp):
     # print(exponent)
     if exponent>7:
         print("Overflow: Exponent Greater than 7")
-        exit()
     exponent=bin(exponent-1).replace('0b','')
+    exponent=exponent[-3::]
     # print(exponent)
     while len(exponent)<3:
         exponent=f'0{exponent}'
