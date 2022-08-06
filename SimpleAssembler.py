@@ -18,6 +18,8 @@ HLT_F  = False
 MEM_F  = False
 MOV_TYPE=''
 
+line_counter = 0
+
 isa_commands={
     "add" :"10000",
     "sub" :"10001",
@@ -38,7 +40,10 @@ isa_commands={
     "jlt" :"01100",
     "jgt" :"01101",
     "je"  :"01111",
-    "hlt" :"01010"
+    "hlt" :"01010",
+    "addf":"00000",
+    "subf":"00001",
+    "movf":"00010"
 }
 
 isa_type = {
@@ -64,6 +69,9 @@ isa_type = {
     "je"   :"E",
     "hlt"  :"F",
     "var"  :"G",
+    "addf" :"A",
+    "subf" :"A",
+    "movf" :"B"
 }
 
 REGISTERS = {
@@ -77,9 +85,90 @@ REGISTERS = {
     "FLAGS":"111"
 }
 
+def decToCSE(inp):
+    # print(inp)
+    if '.' not in inp:
+        print("Integer value does not require cse112 floating point representation")
+        # exit()
+        inp+='.0'
+    if float(inp)<1:
+        print("Can't store values under 1")
+        exit()
+    num=inp.split(".")
+    # print(num)
+    pre_dec=num[0]
+    post_dec=num[1]
+    first=bin(int(pre_dec)).replace('0b','')
+    # print(first)
+    second=float(f'0.{post_dec}')
+    # print(second)
+    temp=''
+    while len(temp)<5:
+        second*=2
+        if second>1:
+            second-=1
+            temp+='1'
+        elif second<1:
+            temp+='0'
+        elif second==1:
+            temp+='1'
+            break
+    # print(temp)
+    second=temp
+    # print(f'{first}.{second}')
+    exponent=len(str(first))
+    # print(exponent)
+    if exponent>7:
+        print("Overflow: Exponent Greater than 7")
+    if exponent<7:
+        mantissa=f'{first[1::]}{second}'
+    else:
+        mantissa=f'{first[-7::]}{second}'
+    # print(mantissa)
+    exponent=bin(exponent-1).replace('0b','')
+    if len(mantissa)>5:
+        print("Mantissa longer than 5, Truncating till 5 digits")
+    mantissa=mantissa[:5:]
+    # print(mantissa)
+    # if len(exponent)>3:
+        # exponent=exponent[-3::]
+    # print(exponent)
+    while len(exponent)<3:
+        exponent=f'0{exponent}'
+    while len(mantissa)<5:
+        mantissa=f'{mantissa}0'
+    # print(exponent,mantissa)
+    cse_rep=exponent+mantissa
+    # print(cse_rep)
+    cse_rep='00000000'+cse_rep
+    # print(cse_rep)
+    return(cse_rep)
+    
+
+def CSEToDec(reg):
+    cse_rep=reg[8::]
+    # print(cse_rep)
+    exponent=cse_rep[:3:]
+    mantissa=cse_rep[3::]
+    # print(exponent,mantissa)
+    exponent=int(exponent,2)+1
+    # print(exponent)
+    first=f'1{mantissa[:exponent-1:]}'
+    second=mantissa[exponent-1::]
+    # print(first,'.',second)
+    pre_dec=int(first,2)
+    # print(pre_dec)
+    temp=second[::-1]
+    sum=0
+    for i in temp:
+        sum=(sum+int(i))/2
+    post_dec=float(f'{sum}')
+    out=pre_dec+post_dec
+    # print(out)
+    return(out)
+
 labels = dict()
 var    = dict()
-line_counter = 0
 parsed_code_temp = code.split("\n")
 parsed_code = []
 
@@ -184,16 +273,20 @@ def bcheck(i):
         if i[1] in REGISTERS.keys():
             if i[1] != "FLAGS":
                 if i[2][0] == '$':
-                    x = int(i[2][1::])
-                    if(x <= MAX_NO and x >= MIN_NO):
-                        line_counter = line_counter+ 1
-                        return True
-                    else:
-                        # print(line_counter)
-                        # print(": ")
-                        print('IMMEDIATE VALUE OFF RANGE')
-                        print(line_counter+1)
-                        raise OverflowError("IMMEDIATE VALUE OFF RANGE")
+                    if '.' not in i[2][1::]:
+                        x = int(i[2][1::])
+                        if(x <= MAX_NO and x >= MIN_NO):
+                            line_counter = line_counter+ 1
+                            return True
+                        else:
+                            # print(line_counter)
+                            # print(": ")
+                            print('IMMEDIATE VALUE OFF RANGE')
+                            print(line_counter+1)
+                            raise OverflowError("IMMEDIATE VALUE OFF RANGE")
+                    elif '.' in i[2][1::]:
+                        x=CSEToDec(decToCSE(i[2][1::]))
+                        line_counter+=1
                 else:
                     # print(line_counter)
                     # print(": ")
@@ -456,7 +549,10 @@ def bprint(i):
     res=[]
     res.extend(isa_commands[i[0]])
     res.extend(REGISTERS[i[1]])
-    res.extend(f'{int(i[2]):08b}')
+    if '.' not in i[2]:
+        res.extend(f'{int(i[2]):08b}')
+    elif '.' in i[2]:
+        res.extend((decToCSE(i[2][1::])[-8::]))
     return res
 
 def cprint(i):
