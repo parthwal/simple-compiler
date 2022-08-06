@@ -34,6 +34,33 @@ def decitobin(deci):
     y = ''.join(x)
     return y
 
+
+inp="193.2"
+
+    
+
+def CSEToDec(reg):
+    cse_rep=reg[8::]
+    # print(cse_rep)
+    exponent=cse_rep[:3:]
+    mantissa=cse_rep[3::]
+    # print(exponent,mantissa)
+    exponent=int(exponent,2)+1
+    # print(exponent)
+    first=f'1{mantissa[:exponent-1:]}'
+    second=mantissa[exponent-1::]
+    # print(first,'.',second)
+    pre_dec=int(first,2)
+    # print(pre_dec)
+    temp=second[::-1]
+    sum=0
+    for i in temp:
+        sum=(sum+int(i))/2
+    post_dec=float(f'{sum}')
+    out=pre_dec+post_dec
+    print(out)
+    return(out)
+
 #start of program
 
 program_counter = 0
@@ -58,6 +85,69 @@ def flag_set():
     x[13] = str(FLAG_R['L'])
     x[12] = str(FLAG_R['V'])
     REGISTERS[7] = ''.join(x)
+
+def decToCSE(inp):
+    print(inp)
+    if '.' not in inp:
+        # print("Integer value does not require cse112 floating point representation")
+        # exit()
+        inp+='.0'
+    if float(inp)<1:
+        # print("Can't store values under 1") #overplow clamp to 0
+        # exit()
+        inp = '0.0'
+    num=inp.split(".")
+    # print(num)
+    pre_dec=num[0]
+    post_dec=num[1]
+    first=bin(int(pre_dec)).replace('0b','')
+    # print(first)
+    second=float(f'0.{post_dec}')
+    # print(second)
+    temp=''
+    while len(temp)<5:
+        second*=2
+        if second>1:
+            second-=1
+            temp+='1'
+        elif second<1:
+            temp+='0'
+        elif second==1:
+            temp+='1'
+            break
+    # print(temp)
+    second=temp
+    # print(f'{first}.{second}')
+    mantissa=f'{first[1::]}{second}'
+    # print(mantissa)
+    if len(mantissa)>5:
+        FLAG_R['V'] = 1
+        FLAG_R["written"] = True
+        flag_set()
+    #     # print("Mantissa longer than 5, Truncating till 5 digits")
+    mantissa=mantissa[:5:]
+    # print(mantissa)
+    exponent=len(str(first))
+    # print(exponent)
+    if exponent>7:
+        FLAG_R['V'] = 1
+        FLAG_R["written"] = True
+        flag_set()
+        # print("Overflow: Exponent Greater than 7")
+    exponent=bin(exponent-1).replace('0b','')
+    if(len(exponent) > 3):
+        exponent=exponent[-3::]
+    # print(exponent)
+    while len(exponent)<3:
+        exponent=f'0{exponent}'
+    while len(mantissa)<5:
+        mantissa=f'{mantissa}0'
+    # print(exponent,mantissa)
+    cse_rep=exponent+mantissa
+    # print(cse_rep)
+    cse_rep='00000000'+cse_rep
+    print(cse_rep)
+    return(cse_rep)
 
 MEMORY = [0]*256
 for i in range(256):
@@ -91,6 +181,9 @@ isa_type = {
     "01101":"E",
     "01111":"E",
     "01010":"F",
+    "00000":"A",
+    "00001":"A",
+    "00010":"B1"
 }
 
 def aparse(code):
@@ -127,6 +220,11 @@ def fparse(code):
     opcode = code[:5:]
     return [opcode]
 
+def b1parse(code):
+    opcode = code[:5:]
+    r1  = bintodeci(code[5:8:])
+    Imm = float(CSEToDec(code[:16:]))
+    return [opcode,r1,Imm]
 
 SYN_PARSE ={
     "A" : aparse,
@@ -135,6 +233,7 @@ SYN_PARSE ={
     "D" : dparse,
     "E" : eparse,
     "F" : fparse,
+    "B1": b1parse,
 } 
 
 def decoder(code):
@@ -292,6 +391,20 @@ def hlt(code):
     HLT_F = True
     return program_counter
 
+def addf(code):
+    a = float(CSEToDec(REGISTERS[code[1]])) + float(CSEToDec(REGISTERS[code[2]]))
+    REGISTERS[code[3]] = decToCSE(str(a))
+    return program_counter + 1
+
+def subf(code):
+    a = float(CSEToDec(REGISTERS[code[1]])) - float(CSEToDec(REGISTERS[code[2]]))
+    REGISTERS[code[3]] = decToCSE(str(a))
+    return program_counter + 1
+
+def movf(code):
+    a = code[2]
+    REGISTERS[code[1]] = decToCSE(str(a))
+    return program_counter + 1
 isa_exe = {
     "10000": add ,
     "10001": sub ,
@@ -313,6 +426,9 @@ isa_exe = {
     "01101": jgt ,
     "01111": je  ,
     "01010": hlt ,
+    "00000": addf,
+    "00001": subf,
+    "00010": movf
 }
 
 def exec(code):
