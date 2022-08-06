@@ -18,5 +18,6 @@ for i in p_code:
 plt.ylabel("memory access")
 plt.xlabel("time")
 plt.scatter(y, x)
+
 plt.show()
 
