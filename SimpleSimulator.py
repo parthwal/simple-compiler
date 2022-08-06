@@ -62,7 +62,7 @@ def CSEToDec(reg):
 # q4 utility 
 time = 0
 mem = []
-
+ti = []
 #start of program
 
 program_counter = 0
@@ -278,10 +278,14 @@ def movr(code):
 
 def ld(code):
     REGISTERS[code[1]] = MEMORY[code[2]]
+    mem.append(code[2])
+    ti.append(time)
     return program_counter + 1 #
 
 def st(code):
     MEMORY[code[2]] = REGISTERS[code[1]]
+    mem.append(code[1])
+    ti.append(time)
     return program_counter + 1 #
 
 def mul(code):
@@ -437,6 +441,8 @@ isa_exe = {
 }
 
 def exec(code):
+    global time
+    time += 1
     x = decoder(code)
     return isa_exe[x[0]](x)
 
@@ -451,8 +457,10 @@ def mem_dump():
 
 initialize()
 while(not(HLT_F)):
-    code = MEMORY[program_counter]
     time += 1
+    code = MEMORY[program_counter]
+    mem.append(program_counter)
+    ti.append(time)
     new_pc = exec(code)
 
     if(FLAG_R["written"]):
@@ -469,4 +477,10 @@ while(not(HLT_F)):
     program_counter = new_pc
 mem_dump()
 
+if(len(mem) == len(ti)):
+    filee = open("mem.txt","w")
+    xxxx = ''
+    for i in range(len(mem)):
+        xxxx += str(mem[i]) + ' ' + str(ti[i]) + '\n'
+    filee.writelines(xxxx)
 
