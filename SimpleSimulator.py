@@ -37,8 +37,6 @@ def decitobin(deci):
 
 inp="193.2"
 
-    
-
 def CSEToDec(reg):
     cse_rep=reg[8::]
     # print(cse_rep)
@@ -60,6 +58,10 @@ def CSEToDec(reg):
     out=pre_dec+post_dec
     # print(out)
     return(out)
+
+# q4 utility 
+time = 0
+mem = []
 
 #start of program
 
@@ -99,6 +101,7 @@ def decToCSE(inp):
         FLAG_R['V'] = 1
         FLAG_R["written"] = True
         flag_set()
+        return "0000000000000000"
     num=inp.split(".")
     # print(num)
     pre_dec=num[0]
@@ -134,6 +137,7 @@ def decToCSE(inp):
         FLAG_R['V'] = 1
         FLAG_R["written"] = True
         flag_set()
+        return "0000000011111111"
         # print("Overflow: Exponent Greater than 7")
     exponent=bin(exponent-1).replace('0b','')
     if(len(exponent) > 3):
@@ -448,7 +452,9 @@ def mem_dump():
 initialize()
 while(not(HLT_F)):
     code = MEMORY[program_counter]
+    time += 1
     new_pc = exec(code)
+
     if(FLAG_R["written"]):
         FLAG_R["written"] = False
         flag_set()
