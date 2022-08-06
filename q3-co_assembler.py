@@ -1,85 +1,74 @@
-# def convertToFP(a): 
-#     pass
-
-# isa_commands={}
-
-# fp_commands={
-#     "f_add":"00000",
-#     "f_sub":"00001",
-#     "f_mov":"00010"
-# }
-
-# isa_commands.extend(fp_commands)
-
-# isa_type={}
-
-# fp_type={
-#     "f_add":"A",
-#     "f_sub":"A",
-#     "f_mov":"B"    
-# }
-
-# isa_type.extend(fp_type)
-
-num="1.5"
-
-def cse_rep(num):
-    if "." not in num:
-        num+=".0"
-    num_list=num.split(".")
-    
-    # for i in range(len(num_list)): 
-    #     num_list[i]=int(num_list[i])
-    # print(num_list)
-
-    first=format(int(num_list[0]),"b")
-    second=''
-    
-    num_list[1]=int(num_list[1])
-    while len(second)<5:
-        num_list[1]*=2
-        if num_list[1]>10:
-            num_list[1]-=10
-            second+="1"
-        elif num_list[1]<10:
-            second+="0"
-        elif num_list[1]==10:
-            second+="1"
-    
+inp="2.2625"
+def decToCSE(inp):
+    print(inp)
+    num=inp.split(".")
+    # print(num)
+    pre_dec=num[0]
+    post_dec=num[1]
+    first=bin(int(pre_dec)).replace('0b','')
+    # print(first)
+    second=float(f'0.{post_dec}')
     # print(second)
+    temp=''
+    while len(temp)<5:
+        second*=2
+        if second>1:
+            second-=1
+            temp+='1'
+        elif second<1:
+            temp+='0'
+        elif second==1:
+            temp+='1'
+            break
+    # print(temp)
+    second=temp
     # print(f'{first}.{second}')
-    
-    exponent=len(first)-1
-    if exponent>3:
-        print("overflow")
-    binary=f'{first[1::]}{second}'
-    
-    # print(bin(exponent)[2::])
-    # print(binary)
-    
-    cse_rep=f'{bin(exponent)[2:5:]}{binary[:5]}'
+    mantissa=f'{first[1::]}{second}'
+    # print(mantissa)
+    if len(mantissa)>5:
+        print("Mantissa longer than 5, Truncating till 5 digits")
+    mantissa=mantissa[:5:]
+    # print(mantissa)
+    exponent=len(str(first))
+    # print(exponent)
+    if exponent>7:
+        print("Overflow: Exponent Greater than 7")
+        exit()
+    exponent=bin(exponent-1).replace('0b','')
+    # print(exponent)
+    while len(exponent)<3:
+        exponent=f'0{exponent}'
+    while len(mantissa)<5:
+        mantissa=f'{mantissa}0'
+    # print(exponent,mantissa)
+    cse_rep=exponent+mantissa
     # print(cse_rep)
-    
-    while len(cse_rep)<8:
-        cse_rep=f'0{cse_rep}'
-
-    while len(cse_rep)<16: #to make cse_rep register compliant
-        cse_rep=f'0{cse_rep}'
-        
+    cse_rep='00000000'+cse_rep
     print(cse_rep)
     return(cse_rep)
+    
 
-def binary(reg):
-    reg=reg[-8::]
-    exponent=reg[:3:]
-    mantissa=reg[-5::]
-    print(exponent)
-    print(mantissa)
-    first=2**(int(exponent,2)+1)
-    second=float(f'1.{int(mantissa,2)}')
-    print(first)
-    print(second)
-    print(round(first/second,1))
-# cse_rep(num)
+def CSEToDec(reg):
+    cse_rep=reg[8::]
+    # print(cse_rep)
+    exponent=cse_rep[:3:]
+    mantissa=cse_rep[3::]
+    # print(exponent,mantissa)
+    exponent=int(exponent,2)+1
+    # print(exponent)
+    first=f'1{mantissa[:exponent-1:]}'
+    second=mantissa[exponent-1::]
+    # print(first,'.',second)
+    pre_dec=int(first,2)
+    # print(pre_dec)
+    temp=second[::-1]
+    sum=0
+    for i in temp:
+        sum=(sum+int(i))/2
+    post_dec=float(f'{sum}')
+    out=pre_dec+post_dec
+    print(out)
+    return(out)
 
-binary(cse_rep(num))
+# decToCSE(inp)
+CSEToDec(decToCSE(inp))
