@@ -1,6 +1,9 @@
-inp="2.2625"
+inp="1.5"
 def decToCSE(inp):
     print(inp)
+    if float(inp)<1:
+        print("Can't store values under 1")
+        exit()
     num=inp.split(".")
     # print(num)
     pre_dec=num[0]
