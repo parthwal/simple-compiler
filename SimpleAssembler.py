@@ -140,8 +140,8 @@ def initial_check(p_code):
                         hLT_F = True
                         continue
                 except IndexError:
-                     print(line_c)
-                     raise IndexError("EMPTY LABEL CANT BE USED")
+                    print(line_c)
+                    raise IndexError("EMPTY LABEL CANT BE USED")
         line_c += 1
 
     if(p_code[-1][0] != "hlt"):
@@ -456,7 +456,7 @@ def bprint(i):
     res=[]
     res.extend(isa_commands[i[0]])
     res.extend(REGISTERS[i[1]])
-    res.extend(f'{6:08b}')
+    res.extend(f'{int(i[2]):08b}')
     return res
 
 def cprint(i):
